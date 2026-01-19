@@ -27,8 +27,8 @@ class TXT180Provider {
   private readonly apiKey: string;
 
   constructor() {
-    this.apiUrl = env.TXT180_API_URL || 'https://api.txt180.com/v1';
-    this.apiKey = env.TXT180_API_KEY || '';
+    this.apiUrl = 'https://api.txt180.com/v1'; // Text180 API endpoint
+    this.apiKey = env.TEXT180_AUTH_KEY || '';
   }
 
   isConfigured(): boolean {

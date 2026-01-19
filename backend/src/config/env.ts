@@ -47,6 +47,8 @@ const envSchema = z.object({
   TEXT180_ACCOUNT_ID: z.string().transform(Number).optional(),
   TEXT180_SHORT_CODE: z.string().optional(),
   TEXT180_KEYWORD: z.string().optional(),
+  TXT180_API_URL: z.string().optional(), // Legacy
+  TXT180_API_KEY: z.string().optional(), // Legacy
 
   // Divine Agentic System - Slack Alerting
   SLACK_WEBHOOK_URL: z.string().optional(),

@@ -58,7 +58,13 @@
       "mcp__retell-ai__retell_get_conversation_flow",
       "mcp__retell-ai__retell_update_conversation_flow",
       "mcp__retell-ai__retell_publish_agent",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

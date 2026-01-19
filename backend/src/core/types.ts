@@ -25,33 +25,7 @@ export interface RetellCall {
     retell_llm_dynamic_variables?: Record<string, any>;
 }
 
-export interface ClientConfig {
-    clientId: string;
-    name: string;
-
-    // Messaging
-    sms_enabled: boolean;
-    sms_provider: 'txt180' | 'twilio' | 'none';
-    email_enabled: boolean;
-    email_provider: 'zoho' | 'sendgrid' | 'none';
-
-    // CRM
-    crm_provider: 'zoho' | 'hubspot' | 'ghl' | 'none';
-
-    // AI
-    ai_followup_enabled: boolean;
-
-    // Calendar
-    calendar_id: string;
-    timezone: string;
-    business_hours: {
-        start: string; // "09:00"
-        end: string;   // "17:00"
-        days: number[]; // [1,2,3,4,5] (Mon-Fri)
-    };
-
-    address?: string;
-}
+// ClientConfig is now imported from ../types (defined in types/retell.types.ts)
 
 export interface RouteDecision {
     action: 'noop' | 'parallel_execute' | 'respond_with_context' | 'handoff';

@@ -61,3 +61,6 @@ coverage/
 # Misc
 .cache/
 *.orig
+
+# MCP servers (separate repos)
+retell-mcp/

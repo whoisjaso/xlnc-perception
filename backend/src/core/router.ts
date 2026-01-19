@@ -1,4 +1,5 @@
-import { RetellWebhookEvent, ClientConfig, RouteDecision, ParallelAction, RetellCall } from './types';
+import { RetellWebhookEvent, RouteDecision, ParallelAction, RetellCall } from './types';
+import { ClientConfig } from '../types';
 import { IntentClassifier, Intent } from '../services/ai/intent-classifier';
 import { CustomerMemory } from '../services/memory/customer';
 import { ConversationAnalyzer } from '../services/ai/conversation-analyzer';
@@ -41,7 +42,7 @@ export class CentralRouter {
         }
     }
 
-    private async handleCallStarted(call: RetellCall, config: ClientConfig): Promise<RouteDecision> {
+    private async handleCallStarted(_call: RetellCall, _config: ClientConfig): Promise<RouteDecision> {
         // Logic for call start (e.g. logging)
         return { action: 'noop' };
     }
@@ -60,13 +61,17 @@ export class CentralRouter {
                 const calendarService = ZohoCalendarService.forClient(config as any);
 
                 if (calendarService.isConfigured()) {
-                    // Get available slots for today and next 7 days
+                    // Get typical business hours (use Monday as default)
+                    const mondayHours = config.business_hours?.monday || { start: '09:00', end: '17:00' };
+                    const startHour = parseInt(mondayHours.start.split(':')[0]);
+                    const endHour = parseInt(mondayHours.end.split(':')[0]);
+
+                    // Get available slots for today
                     const today = new Date();
                     const slots = await calendarService.getAvailableSlots(
                         today,
                         60, // 60-minute appointments
-                        { start: config.business_hours?.start ? parseInt(config.business_hours.start.split(':')[0]) : 9,
-                          end: config.business_hours?.end ? parseInt(config.business_hours.end.split(':')[0]) : 17 }
+                        { start: startHour, end: endHour }
                     );
 
                     // Get tomorrow's slots too
@@ -75,8 +80,7 @@ export class CentralRouter {
                     const tomorrowSlots = await calendarService.getAvailableSlots(
                         tomorrow,
                         60,
-                        { start: config.business_hours?.start ? parseInt(config.business_hours.start.split(':')[0]) : 9,
-                          end: config.business_hours?.end ? parseInt(config.business_hours.end.split(':')[0]) : 17 }
+                        { start: startHour, end: endHour }
                     );
 
                     // Format for agent to speak

@@ -1,0 +1,75 @@
+# ============================================
+# RAILWAY ENVIRONMENT VARIABLES
+# Copy-paste this into Railway Variables → Raw Editor
+# ============================================
+# Last Updated: 2026-01-19
+# Project: XLNC Perception - Multi-Tenant Voice AI Platform
+# Current Client: Smart Tax Nation (TEST ENVIRONMENT)
+# ============================================
+
+# ============================================
+# PLATFORM-LEVEL CREDENTIALS (Global)
+# ============================================
+
+NODE_ENV=production
+PORT=3000
+
+# Database - Railway auto-injects this
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+
+# JWT Secrets - Platform-wide authentication
+JWT_SECRET=20b53c2e794942f2ec073fcaa8b9400420bdf960bc914d9ac1cce5b4fa978019
+JWT_REFRESH_SECRET=985b4159314bdf56fdef7a72da711c2084e154c7b878e62a5f83e52ac846ff83
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+
+# Platform Encryption
+ENCRYPTION_KEY=xlnc_encryption_key_32_chars_min
+
+# CORS (Frontend URL)
+FRONTEND_URL=https://xlnc-perception-production.up.railway.app
+
+# ============================================
+# TESTING ENVIRONMENT CREDENTIALS
+# ============================================
+# NOTE: These are YOUR personal credentials for testing
+# They will be REPLACED with client-specific credentials
+# stored in backend/config/clients/{client-id}.json
+# ============================================
+
+# Retell AI (Your Test Account)
+RETELL_WEBHOOK_SECRET=key_a01bedb0228379656e3b09215227
+RETELL_AGENT_ID=agent_2902ef6cd0a87f863052e3efff
+
+# Zoho CRM & Calendar (Your Test Account)
+ZOHO_CLIENT_ID=1000.GKLJHJYMUO098KD2UQQBY07ERD94OD
+ZOHO_CLIENT_SECRET=a979a5a1e73e9c01cf6cde6cf0786a565fef9a2041
+ZOHO_REFRESH_TOKEN=1000.9160655ddf9da0acf6ceaefe4cc76c5b.96ef80539fc9a6434106dfcf213a53c7
+ZOHO_CALENDAR_ID=c349f76861954b919e182591808d02b9
+
+# Text180 SMS (Your Test Account)
+TEXT180_AUTH_KEY=be7f19a8ab7de611fc94bc3a52246051
+TEXT180_ACCOUNT_ID=6038
+TEXT180_SHORT_CODE=8888131403
+TEXT180_KEYWORD=thinksmart
+
+# SendGrid Email (Optional for now)
+SENDGRID_API_KEY=
+SENDGRID_FROM_EMAIL=alerts@xlnc.app
+SENDGRID_FROM_NAME=XLNC Neural Core
+
+# Anthropic AI (For PRISM analysis & follow-ups)
+ANTHROPIC_API_KEY=
+
+# ============================================
+# OPTIONAL - Additional Services
+# ============================================
+
+# Redis (if you add Redis service to Railway)
+REDIS_URL=
+
+# Slack Alerts (for error monitoring)
+SLACK_WEBHOOK_URL=
+
+# Sentry Error Tracking
+SENTRY_DSN=

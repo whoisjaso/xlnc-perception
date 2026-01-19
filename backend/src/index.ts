@@ -122,11 +122,13 @@ const startServer = async () => {
 
     // Start listening
     const PORT = env.PORT || 3000;
-    httpServer.listen(PORT, () => {
+    const HOST = '0.0.0.0'; // Bind to all interfaces for Railway/cloud deployments
+    httpServer.listen(PORT, HOST, () => {
       logTheatrical.success(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
       logTheatrical.success(`   XLNC DIVINE AGENTIC INTELLIGENCE SYSTEM ONLINE   `);
       logTheatrical.success(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
       logTheatrical.neural(`Neural Core: Active`);
+      logTheatrical.neural(`Host: ${HOST}`);
       logTheatrical.neural(`Port: ${PORT}`);
       logTheatrical.neural(`Environment: ${env.NODE_ENV}`);
       logTheatrical.neural(`Frontend: ${env.FRONTEND_URL}`);

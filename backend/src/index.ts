@@ -4,7 +4,7 @@ import { Server as SocketServer } from 'socket.io';
 import { createServer } from 'http';
 import env from './config/env';
 import { configureSecurity } from './config/security';
-import { testDatabaseConnection } from './config/database';
+import { testDatabaseConnection, runMigrations } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { logger, logTheatrical } from './utils/logger';
 import authRoutes from './routes/auth';
@@ -115,6 +115,9 @@ const startServer = async () => {
       logger.error('Failed to connect to database. Exiting...');
       process.exit(1);
     }
+
+    // Run database migrations
+    await runMigrations();
 
     // Initialize Divine services
     initializeDivineServices();

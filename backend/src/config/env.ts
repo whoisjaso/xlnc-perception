@@ -66,11 +66,6 @@ export type Env = z.infer<typeof envSchema>;
 let env: Env;
 
 try {
-  // Debug: Log DATABASE_URL before validation
-  console.log('🔍 DATABASE_URL value:', process.env.DATABASE_URL);
-  console.log('🔍 DATABASE_URL type:', typeof process.env.DATABASE_URL);
-  console.log('🔍 DATABASE_URL length:', process.env.DATABASE_URL?.length);
-
   env = envSchema.parse(process.env);
 } catch (error) {
   console.error('❌ Environment validation failed:');

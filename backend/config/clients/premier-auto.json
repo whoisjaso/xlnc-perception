@@ -1,0 +1,39 @@
+{
+  "client_id": "premier-auto",
+  "business_name": "Premier Auto Service",
+  "owner_name": "Mike Johnson",
+  "industry": "Automotive",
+  "phone": "+17135559000",
+  "email": "service@premierauto.example.com",
+  "address": "4500 Westheimer Rd, Houston, TX 77027",
+  "timezone": "America/Chicago",
+
+  "business_hours": {
+    "monday": { "start": "07:30", "end": "18:00" },
+    "tuesday": { "start": "07:30", "end": "18:00" },
+    "wednesday": { "start": "07:30", "end": "18:00" },
+    "thursday": { "start": "07:30", "end": "18:00" },
+    "friday": { "start": "07:30", "end": "18:00" },
+    "saturday": { "start": "08:00", "end": "14:00" },
+    "sunday": { "start": "00:00", "end": "00:00", "closed": true }
+  },
+
+  "retell_agent_id": "agent_premier_auto",
+  "zoho_calendar_id": "cal_premier_auto",
+  "zoho_crm_enabled": true,
+
+  "sms_provider": "twilio",
+  "email_provider": "sendgrid",
+  "sms_enabled": true,
+  "email_enabled": true,
+
+  "ai_followup_enabled": true,
+  "prism_analysis_enabled": true,
+
+  "appointment_booking_enabled": true,
+  "inventory_check_enabled": true,
+  "human_transfer_enabled": true,
+
+  "greeting_override": "Thank you for calling Premier Auto Service, where excellence meets affordability. How may I help you today?",
+  "special_instructions": "Focus on scheduling service appointments. Common services: oil changes, brake service, tire rotation, AC repair. If customer mentions urgency, prioritize same-day appointments. Mention our current promotion: Free tire rotation with any oil change over $50."
+}

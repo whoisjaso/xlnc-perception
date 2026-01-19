@@ -1,0 +1,39 @@
+{
+  "client_id": "luxe-realty",
+  "business_name": "Luxe Realty Partners",
+  "owner_name": "Amanda Torres",
+  "industry": "Real Estate",
+  "phone": "+18325557200",
+  "email": "inquiries@luxerealty.example.com",
+  "address": "1000 Main St, Suite 2500, Houston, TX 77002",
+  "timezone": "America/Chicago",
+
+  "business_hours": {
+    "monday": { "start": "09:00", "end": "19:00" },
+    "tuesday": { "start": "09:00", "end": "19:00" },
+    "wednesday": { "start": "09:00", "end": "19:00" },
+    "thursday": { "start": "09:00", "end": "19:00" },
+    "friday": { "start": "09:00", "end": "18:00" },
+    "saturday": { "start": "10:00", "end": "16:00" },
+    "sunday": { "start": "12:00", "end": "16:00" }
+  },
+
+  "retell_agent_id": "agent_luxe_realty",
+  "zoho_calendar_id": "cal_luxe_realty",
+  "zoho_crm_enabled": true,
+
+  "sms_provider": "txt180",
+  "email_provider": "sendgrid",
+  "sms_enabled": true,
+  "email_enabled": true,
+
+  "ai_followup_enabled": true,
+  "prism_analysis_enabled": true,
+
+  "appointment_booking_enabled": true,
+  "inventory_check_enabled": true,
+  "human_transfer_enabled": true,
+
+  "greeting_override": "Welcome to Luxe Realty Partners, Houston's premier luxury real estate agency. How may I assist you with your property search today?",
+  "special_instructions": "Qualify leads by asking about: property type (buy/sell/rent), budget range, preferred neighborhoods, timeline. For sellers, offer a free home valuation. Schedule showings for available properties. Always emphasize our personalized concierge service. Current promotion: Waived buyer's agent consultation fee."
+}

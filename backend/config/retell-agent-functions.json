@@ -1,0 +1,132 @@
+{
+  "_description": "Retell Agent Function Definitions for Smart Tax Nation",
+  "_webhook_url": "https://YOUR_DOMAIN/api/webhooks/retell/smart-tax-nation/function",
+  "_instructions": "Copy these function definitions into the Retell Agent's Function Calling configuration",
+
+  "functions": [
+    {
+      "name": "check_calendar_availability",
+      "description": "Check available appointment slots on a specific date. Use this when the caller asks about availability or wants to schedule an appointment.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "requested_date": {
+            "type": "string",
+            "description": "The date to check availability for. Can be relative like 'today', 'tomorrow', 'next Monday', or a specific date like '2024-01-15'"
+          },
+          "time_preference": {
+            "type": "string",
+            "enum": ["morning", "afternoon", "evening", "any"],
+            "description": "Time of day preference: morning (9am-12pm), afternoon (12pm-5pm), evening (5pm+), or any"
+          },
+          "duration_minutes": {
+            "type": "number",
+            "description": "Appointment duration in minutes. Defaults to 30 if not specified."
+          }
+        },
+        "required": ["requested_date"]
+      }
+    },
+    {
+      "name": "book_appointment",
+      "description": "Book an appointment after confirming the time with the caller. Only use this after the caller has selected a specific time slot.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "datetime": {
+            "type": "string",
+            "description": "The appointment date and time in ISO 8601 format (e.g., '2024-01-15T14:00:00')"
+          },
+          "customer_name": {
+            "type": "string",
+            "description": "The caller's full name"
+          },
+          "customer_phone": {
+            "type": "string",
+            "description": "The caller's phone number for confirmation"
+          },
+          "customer_email": {
+            "type": "string",
+            "description": "The caller's email address (optional)"
+          },
+          "appointment_type": {
+            "type": "string",
+            "description": "Type of appointment (e.g., 'Tax Consultation', 'Tax Preparation Review', 'Initial Assessment')"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Any additional notes about the appointment"
+          }
+        },
+        "required": ["datetime", "customer_name", "customer_phone"]
+      }
+    },
+    {
+      "name": "transfer_to_human",
+      "description": "Transfer the call to a human representative. Use when the caller explicitly requests to speak with a person or the conversation requires human intervention.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "The reason for the transfer"
+          },
+          "department": {
+            "type": "string",
+            "enum": ["sales", "support", "billing", "technical", "general"],
+            "description": "The department to transfer to"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": ["low", "normal", "high"],
+            "description": "The urgency level of the transfer"
+          }
+        },
+        "required": ["reason"]
+      }
+    },
+    {
+      "name": "collect_information",
+      "description": "Store important information provided by the caller for follow-up or record-keeping.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The type of information being collected (e.g., 'name', 'email', 'tax_situation', 'callback_time')"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value to store"
+          }
+        },
+        "required": ["field", "value"]
+      }
+    },
+    {
+      "name": "end_call",
+      "description": "End the call and log the outcome. Use when the conversation is naturally concluding.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why the call is ending (e.g., 'appointment_booked', 'information_provided', 'callback_scheduled', 'customer_request')"
+          },
+          "sentiment": {
+            "type": "string",
+            "enum": ["positive", "neutral", "negative"],
+            "description": "The overall sentiment of the call"
+          },
+          "follow_up_required": {
+            "type": "boolean",
+            "description": "Whether a follow-up action is needed"
+          }
+        },
+        "required": ["reason"]
+      }
+    }
+  ],
+
+  "agent_prompt_addition": "\n\n## Appointment Booking Instructions\nWhen a caller wants to book an appointment:\n1. First ask what day works best for them\n2. Use check_calendar_availability to find open slots\n3. Present 2-3 available options\n4. Once they choose a time, confirm their name and phone number\n5. Use book_appointment to create the booking\n6. Confirm the appointment details back to them\n\nAlways be warm and professional. Smart Tax Nation values excellent customer service."
+}

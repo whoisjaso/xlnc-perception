@@ -1,0 +1,38 @@
+{
+  "client_id": "xlnc-demo",
+  "business_name": "XLNC Demo Business",
+  "owner_name": "Demo User",
+  "industry": "Technology",
+  "phone": "+18325551000",
+  "email": "demo@xlnc.ai",
+  "address": "123 Innovation Drive, Houston, TX 77001",
+  "timezone": "America/Chicago",
+
+  "business_hours": {
+    "monday": { "start": "09:00", "end": "18:00" },
+    "tuesday": { "start": "09:00", "end": "18:00" },
+    "wednesday": { "start": "09:00", "end": "18:00" },
+    "thursday": { "start": "09:00", "end": "18:00" },
+    "friday": { "start": "09:00", "end": "17:00" },
+    "saturday": { "start": "10:00", "end": "14:00" },
+    "sunday": { "start": "00:00", "end": "00:00", "closed": true }
+  },
+
+  "retell_agent_id": "agent_demo_xlnc",
+  "zoho_calendar_id": "cal_demo_xlnc",
+  "zoho_crm_enabled": true,
+
+  "sms_provider": "txt180",
+  "email_provider": "sendgrid",
+  "sms_enabled": true,
+  "email_enabled": true,
+
+  "ai_followup_enabled": true,
+  "prism_analysis_enabled": true,
+
+  "appointment_booking_enabled": true,
+  "inventory_check_enabled": false,
+  "human_transfer_enabled": true,
+
+  "special_instructions": "This is a demo client for testing the Divine Agentic Intelligence System. Always be helpful and showcase our AI capabilities."
+}

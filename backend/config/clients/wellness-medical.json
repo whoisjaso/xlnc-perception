@@ -1,0 +1,39 @@
+{
+  "client_id": "wellness-medical",
+  "business_name": "Wellness Medical Group",
+  "owner_name": "Dr. Sarah Chen",
+  "industry": "Healthcare",
+  "phone": "+12815558500",
+  "email": "appointments@wellnessmedical.example.com",
+  "address": "2800 Medical Center Drive, Suite 100, Houston, TX 77030",
+  "timezone": "America/Chicago",
+
+  "business_hours": {
+    "monday": { "start": "08:00", "end": "17:00" },
+    "tuesday": { "start": "08:00", "end": "17:00" },
+    "wednesday": { "start": "08:00", "end": "17:00" },
+    "thursday": { "start": "08:00", "end": "17:00" },
+    "friday": { "start": "08:00", "end": "16:00" },
+    "saturday": { "start": "09:00", "end": "12:00" },
+    "sunday": { "start": "00:00", "end": "00:00", "closed": true }
+  },
+
+  "retell_agent_id": "agent_wellness_medical",
+  "zoho_calendar_id": "cal_wellness_medical",
+  "zoho_crm_enabled": false,
+
+  "sms_provider": "twilio",
+  "email_provider": "sendgrid",
+  "sms_enabled": true,
+  "email_enabled": true,
+
+  "ai_followup_enabled": true,
+  "prism_analysis_enabled": false,
+
+  "appointment_booking_enabled": true,
+  "inventory_check_enabled": false,
+  "human_transfer_enabled": true,
+
+  "greeting_override": "Hello, thank you for calling Wellness Medical Group. How may I assist you with your healthcare needs today?",
+  "special_instructions": "Always verify patient identity by name and date of birth before discussing any medical information. For urgent medical concerns, advise callers to visit the ER or call 911. Appointment types: Annual Physical, Follow-up Visit, New Patient Consultation, Sick Visit. Do not provide medical advice - schedule appointments only."
+}

@@ -1,0 +1,43 @@
+{
+  "client_id": "smart-tax-nation",
+  "business_name": "Smart Tax Nation",
+  "owner_name": "Smart Tax Nation Team",
+  "industry": "Tax Services",
+  "phone": "+1XXXXXXXXXX",
+  "email": "contact@smarttaxnation.com",
+  "address": "Your Address Here",
+  "timezone": "America/New_York",
+
+  "business_hours": {
+    "monday": { "start": "09:00", "end": "18:00" },
+    "tuesday": { "start": "09:00", "end": "18:00" },
+    "wednesday": { "start": "09:00", "end": "18:00" },
+    "thursday": { "start": "09:00", "end": "18:00" },
+    "friday": { "start": "09:00", "end": "17:00" },
+    "saturday": { "start": "10:00", "end": "14:00" },
+    "sunday": { "start": "00:00", "end": "00:00", "closed": true }
+  },
+
+  "retell_agent_id": "agent_2902ef6cd0a87f863052e3efff",
+
+  "_comment_zoho": "TESTING: Using XLNC dev account. For production, replace with client's Zoho credentials.",
+  "zoho_calendar_id": "c349f76861954b919e182591808d02b9",
+  "zoho_client_id": null,
+  "zoho_client_secret": null,
+  "zoho_refresh_token": null,
+  "zoho_crm_enabled": true,
+
+  "sms_provider": "txt180",
+  "email_provider": "sendgrid",
+  "sms_enabled": true,
+  "email_enabled": true,
+
+  "ai_followup_enabled": true,
+  "prism_analysis_enabled": true,
+
+  "appointment_booking_enabled": true,
+  "inventory_check_enabled": false,
+  "human_transfer_enabled": true,
+
+  "special_instructions": "Smart Tax Nation is a tax consultation business. Always be professional and helpful. When discussing appointments, emphasize the convenience of their scheduling. For tax-related questions, be supportive but encourage booking a consultation with a tax professional for specific advice."
+}

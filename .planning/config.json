@@ -1,0 +1,26 @@
+{
+  "project_name": "XLNC Perception",
+  "version": "1.0.0",
+  "client": "Smart Tax Nation",
+  "created_at": "2026-01-18",
+  "workflow_preferences": {
+    "parallel_research": false,
+    "auto_commit": true,
+    "commit_prefix": "feat",
+    "test_before_commit": true
+  },
+  "tech_stack": {
+    "backend": "TypeScript + Express",
+    "database": "PostgreSQL + Drizzle",
+    "frontend": "React + Vite",
+    "ai": "Anthropic Claude",
+    "voice": "Retell AI"
+  },
+  "integrations": {
+    "crm": "Zoho CRM",
+    "calendar": "Zoho Calendar",
+    "sms": ["Twilio", "Text180"],
+    "email": ["SendGrid", "Zoho SMTP"],
+    "notifications": "Slack"
+  }
+}

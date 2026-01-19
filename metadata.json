@@ -1,0 +1,7 @@
+{
+  "name": "XLNC Perception",
+  "description": "A reality-reshaping interface for consciousness automation and revenue architecture. Not just a dashboard, but a command center for digital sovereignty.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XLNC | Sovereign Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@200;300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              // The Void
+              'xlnc-bg': '#030303',     // Purest Void
+              'xlnc-dark': '#080808',   // Deep Obsidian
+              'xlnc-card': '#0F0F0F',   // Rich Charcoal
+              'xlnc-panel': '#141414',  // Lighter Charcoal
+              
+              // Borders
+              'xlnc-border': '#2A2A2A',
+              'xlnc-border-light': 'rgba(255, 255, 255, 0.08)',
+
+              // The Gold Standard (Metallic Base)
+              'xlnc-gold': '#D4AF37',       // Standard Gold
+              'xlnc-gold-dim': '#8A7020',   // Shadow Gold
+              'xlnc-gold-light': '#F1D372', // Highlight Gold
+              'xlnc-champagne': '#F7E7CE',  // Pale Gold
+
+              // Status
+              'status-success': '#2E7D32',  // Emerald (Money)
+              'status-alert': '#8B0000',    // Blood Red (Crimson)
+              'status-danger': '#DC2626',   // Red-600 (Danger/Error)
+            },
+            fontFamily: {
+              serif: ['Cinzel', 'serif'],
+              sans: ['Inter', 'sans-serif'],
+              script: ['Cormorant Garamond', 'serif'], // For metaphysical cues
+            },
+            backgroundImage: {
+              // Complex Metallic Gradients
+              'gold-gradient': 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+              'gold-text': 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 
+              'obsidian-gradient': 'linear-gradient(to bottom, #141414, #030303)',
+              'subtle-glow': 'radial-gradient(circle at center, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%)',
+            },
+            boxShadow: {
+              'gold-glow': '0 0 20px rgba(212, 175, 55, 0.15)',
+              'card-elevation': '0 10px 30px -10px rgba(0, 0, 0, 0.8)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 1.5s ease-out forwards',
+              'slide-up': 'slideUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
+              'breathe': 'breathe 6s ease-in-out infinite',
+              'shine': 'shine 8s linear infinite',
+              'gold-pulse': 'goldPulse 4s ease-in-out infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(40px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              breathe: {
+                '0%, 100%': { opacity: '0.8' },
+                '50%': { opacity: '0.4' },
+              },
+              shine: {
+                '0%': { backgroundPosition: '200% center' },
+                '100%': { backgroundPosition: '-200% center' },
+              },
+              goldPulse: {
+                '0%, 100%': { boxShadow: '0 0 10px rgba(212, 175, 55, 0.1)' },
+                '50%': { boxShadow: '0 0 25px rgba(212, 175, 55, 0.3)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #030303;
+        color: #E0E0E0;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+      }
+      
+      /* --- Texture & Atmosphere --- */
+      
+      /* Film Grain - Adds subconscious texture/reality */
+      .noise-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      }
+
+      /* Selection Style - Gold Highlight */
+      ::selection {
+        background: rgba(212, 175, 55, 0.3);
+        color: #fff;
+      }
+
+      /* --- Typography Utilities --- */
+      
+      .text-gold-metallic {
+        background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% auto;
+        animation: shine 8s linear infinite;
+      }
+      
+      .text-metaphysical {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        letter-spacing: 0.05em;
+        color: #888;
+      }
+
+      /* --- Luxury Scrollbar --- */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #080808;
+        border-left: 1px solid #1a1a1a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 0px;
+        transition: background 0.3s ease;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #D4AF37; /* Gold on hover */
+      }
+
+      /* --- Component Classes --- */
+      
+      .glass-panel {
+        background: rgba(15, 15, 15, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .gold-border-gradient {
+        border-image: linear-gradient(to bottom, rgba(212, 175, 55, 0.5), rgba(0,0,0,0)) 1;
+      }
+
+      /* --- Opulent Card System --- */
+      .opulent-card {
+        background: rgba(15, 15, 15, 0.75);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 
+          0 8px 32px -8px rgba(0, 0, 0, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* Metallic Top Rim */
+      .opulent-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.2) 50%, transparent 100%);
+        opacity: 0.6;
+      }
+
+      /* Hover State - Elevation */
+      .opulent-card-hover:hover {
+        border-color: rgba(212, 175, 55, 0.15);
+        box-shadow: 
+          0 20px 50px -12px rgba(0, 0, 0, 0.9),
+          0 0 30px rgba(212, 175, 55, 0.05);
+        transform: translateY(-2px);
+      }
+
+      .opulent-card-hover:hover::after {
+        opacity: 1;
+        background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.4) 50%, transparent 100%);
+      }
+
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div class="noise-overlay"></div>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

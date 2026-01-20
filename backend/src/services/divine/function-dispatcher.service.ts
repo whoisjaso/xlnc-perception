@@ -320,6 +320,44 @@ export class FunctionDispatcherService {
       );
     }
 
+    // Queue confirmation email
+    if (context.clientConfig.email_enabled && args.customer_email) {
+      const emailSubject = `Appointment Confirmed - ${context.clientConfig.business_name}`;
+      const emailBody = `
+Hello ${args.customer_name || 'there'},
+
+Your appointment has been confirmed!
+
+Date: ${format(appointmentTime, 'EEEE, MMMM do, yyyy')}
+Time: ${format(appointmentTime, 'h:mm a')}
+Location: ${context.clientConfig.address || 'To be confirmed'}
+
+${args.appointment_type ? `Appointment Type: ${args.appointment_type}` : ''}
+
+If you need to reschedule or cancel, please call us or reply to this email.
+
+Thank you for choosing ${context.clientConfig.business_name}!
+
+Best regards,
+${context.clientConfig.business_name} Team
+      `.trim();
+
+      await messageQueueService.enqueueEmail(
+        context.clientConfig.client_id,
+        args.customer_email,
+        emailSubject,
+        emailBody,
+        {
+          customerId: customer.id,
+          metadata: {
+            type: 'appointment_confirmation',
+            eventId,
+            appointmentTime: args.datetime,
+          },
+        }
+      );
+    }
+
     // Update conversation with booking info
     await conversationService.addBookingToConversation(context.call.call_id, {
       eventId,

@@ -274,14 +274,17 @@ export class FunctionDispatcherService {
     // Create calendar event
     let eventId = 'mock-event-id';
     if (calendarService.isConfigured()) {
-      const event = await calendarService.createEvent({
-        title: `${args.customer_name} - ${args.appointment_type || 'Appointment'}`,
-        startTime: appointmentTime,
-        endTime: new Date(appointmentTime.getTime() + 30 * 60 * 1000),
-        description: args.notes || `Booked via voice AI. Phone: ${args.customer_phone}`,
-        attendees: args.customer_email ? [args.customer_email] : [],
-        location: context.clientConfig.address,
-      });
+      const event = await calendarService.createEvent(
+        {
+          title: `${args.customer_name} - ${args.appointment_type || 'Appointment'}`,
+          startTime: appointmentTime,
+          endTime: new Date(appointmentTime.getTime() + 30 * 60 * 1000),
+          description: args.notes || `Booked via voice AI. Phone: ${args.customer_phone}`,
+          attendees: args.customer_email ? [args.customer_email] : [],
+          location: context.clientConfig.address,
+        },
+        context.clientConfig.timezone || 'America/New_York'
+      );
       eventId = event.id;
     }
 

@@ -299,43 +299,57 @@ router.post(
         config.timezone || 'America/New_York'
       );
 
-      // Create/update customer record
-      const customer = await customerService.getOrCreate(config.client_id, lead_phone);
+      // Create/update customer record (graceful failure if DB not set up)
+      let customerId: string | null = null;
+      try {
+        const customer = await customerService.getOrCreate(config.client_id, lead_phone);
+        customerId = customer.id;
 
-      if (lead_name) {
-        await customerService.update(customer.id, { name: lead_name });
-      }
-      if (lead_email) {
-        await customerService.update(customer.id, { email: lead_email });
+        if (lead_name) {
+          await customerService.update(customer.id, { name: lead_name });
+        }
+        if (lead_email) {
+          await customerService.update(customer.id, { email: lead_email });
+        }
+      } catch (dbError) {
+        logger.warn({ error: dbError }, 'Customer record creation skipped (DB may not be set up)');
       }
 
-      // Queue confirmation SMS
+      // Queue confirmation SMS (graceful failure if message_queue table missing)
+      let smsSent = false;
       if (config.sms_enabled) {
-        const smsMessage =
-          language === 'spanish'
-            ? `Su cita en ${config.business_name} está confirmada para ${format(appointmentTime, "EEEE, MMMM do 'a las' h:mm a")}. Ubicación: ${config.address}. Responda CANCELAR para cancelar.`
-            : `Your appointment at ${config.business_name} is confirmed for ${format(appointmentTime, "EEEE, MMMM do 'at' h:mm a")}. Location: ${config.address}. Reply CANCEL to cancel.`;
+        try {
+          const smsMessage =
+            language === 'spanish'
+              ? `Su cita en ${config.business_name} está confirmada para ${format(appointmentTime, "EEEE, MMMM do 'a las' h:mm a")}. Ubicación: ${config.address}. Responda CANCELAR para cancelar.`
+              : `Your appointment at ${config.business_name} is confirmed for ${format(appointmentTime, "EEEE, MMMM do 'at' h:mm a")}. Location: ${config.address}. Reply CANCEL to cancel.`;
 
-        await messageQueueService.enqueueSMS(config.client_id, lead_phone, smsMessage, {
-          customerId: customer.id,
-          metadata: {
-            type: 'appointment_confirmation',
-            eventId: event.id,
-            appointmentTime: appointment_datetime,
-          },
-        });
+          await messageQueueService.enqueueSMS(config.client_id, lead_phone, smsMessage, {
+            customerId: customerId || undefined,
+            metadata: {
+              type: 'appointment_confirmation',
+              eventId: event.id,
+              appointmentTime: appointment_datetime,
+            },
+          });
+          smsSent = true;
+        } catch (smsError) {
+          logger.warn({ error: smsError }, 'SMS queuing skipped (message_queue table may not exist)');
+        }
       }
 
-      // Queue confirmation email
+      // Queue confirmation email (graceful failure if message_queue table missing)
+      let emailSent = false;
       if (config.email_enabled && lead_email) {
-        const emailSubject =
-          language === 'spanish'
-            ? `Cita Confirmada - ${config.business_name}`
-            : `Appointment Confirmed - ${config.business_name}`;
+        try {
+          const emailSubject =
+            language === 'spanish'
+              ? `Cita Confirmada - ${config.business_name}`
+              : `Appointment Confirmed - ${config.business_name}`;
 
-        const emailBody =
-          language === 'spanish'
-            ? `
+          const emailBody =
+            language === 'spanish'
+              ? `
 Hola ${lead_name},
 
 ¡Su cita ha sido confirmada!
@@ -351,8 +365,8 @@ Si necesita reprogramar o cancelar, por favor llámenos o responda a este correo
 
 Atentamente,
 Equipo de ${config.business_name}
-            `.trim()
-            : `
+              `.trim()
+              : `
 Hello ${lead_name},
 
 Your appointment has been confirmed!
@@ -368,16 +382,20 @@ Thank you for choosing ${config.business_name}!
 
 Best regards,
 ${config.business_name} Team
-            `.trim();
+              `.trim();
 
-        await messageQueueService.enqueueEmail(config.client_id, lead_email, emailSubject, emailBody, {
-          customerId: customer.id,
-          metadata: {
-            type: 'appointment_confirmation',
-            eventId: event.id,
-            appointmentTime: appointment_datetime,
-          },
-        });
+          await messageQueueService.enqueueEmail(config.client_id, lead_email, emailSubject, emailBody, {
+            customerId: customerId || undefined,
+            metadata: {
+              type: 'appointment_confirmation',
+              eventId: event.id,
+              appointmentTime: appointment_datetime,
+            },
+          });
+          emailSent = true;
+        } catch (emailError) {
+          logger.warn({ error: emailError }, 'Email queuing skipped (message_queue table may not exist)');
+        }
       }
 
       const formattedTime = format(appointmentTime, "EEEE, MMMM do 'at' h:mm a");
@@ -392,8 +410,8 @@ ${config.business_name} Team
         event_id: event.id,
         confirmed_datetime: appointment_datetime,
         formatted_datetime: formattedTime,
-        confirmation_sent: config.sms_enabled,
-        email_sent: config.email_enabled && !!lead_email,
+        confirmation_sent: smsSent,
+        email_sent: emailSent,
         message: `Perfect! Your appointment is confirmed for ${formattedTime}. You'll receive a confirmation text shortly.`,
       });
     } catch (error) {

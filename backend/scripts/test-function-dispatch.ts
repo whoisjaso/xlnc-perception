@@ -41,38 +41,41 @@ async function testCalendarAvailability() {
 }
 
 async function testBookAppointment(slots: any[] | null) {
-  console.log('\n=== Testing Appointment Booking ===\n');
+  console.log('\n=== Testing Appointment Booking (LIVE) ===\n');
 
   if (!slots || slots.length === 0) {
     console.log('No slots available to test booking');
-    return;
+    return null;
   }
 
   const calendarService = new ZohoCalendarService();
   const testSlot = slots[0];
 
-  console.log(`Would book appointment at: ${testSlot.formatted}`);
-  console.log('\nBooking parameters:');
-  console.log({
-    title: 'John Doe - Tax Consultation',
-    startTime: testSlot.start.toISOString(),
-    endTime: testSlot.end.toISOString(),
-    description: 'Booked via voice AI. Phone: +15555551234',
-    attendees: ['john@example.com'],
-    location: 'Smart Tax Nation Office',
-  });
+  console.log(`Creating test event at: ${testSlot.formatted}`);
 
-  // Uncomment to actually create a test event:
-  // const event = await calendarService.createEvent({
-  //   title: 'TEST - John Doe - Tax Consultation',
-  //   startTime: testSlot.start,
-  //   endTime: testSlot.end,
-  //   description: 'TEST BOOKING - Delete this',
-  //   attendees: [],
-  // });
-  // console.log('✓ Created event:', event.id);
+  try {
+    const event = await calendarService.createEvent(
+      {
+        title: 'TEST - Auto Delete - Tax Consultation',
+        startTime: testSlot.start,
+        endTime: testSlot.end,
+        description: 'AUTOMATED TEST - Safe to delete. Created by test-function-dispatch.ts',
+        attendees: [],
+      },
+      'America/New_York'
+    );
 
-  console.log('\n✓ Booking simulation complete (no actual event created)');
+    console.log('✓ Event created successfully!');
+    console.log(`  Event ID: ${event.id}`);
+    console.log(`  Title: ${event.title}`);
+    console.log(`  Time: ${testSlot.formatted}`);
+    console.log('\n⚠️  Remember to delete this test event from Zoho Calendar');
+
+    return event;
+  } catch (error) {
+    console.error('❌ Failed to create event:', error);
+    return null;
+  }
 }
 
 async function simulateFunctionCall() {

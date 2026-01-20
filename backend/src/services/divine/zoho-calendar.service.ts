@@ -141,25 +141,38 @@ export class ZohoCalendarService {
   ): Promise<CalendarEvent> {
     const token = await this.getAccessToken();
 
+    // Zoho expects date format: yyyyMMdd'T'HHmmssZ (e.g., "20260120T140000Z")
+    const formatZohoDateTime = (d: Date): string => {
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    };
+
+    const eventData = {
+      title: event.title,
+      dateandtime: {
+        start: formatZohoDateTime(event.startTime),
+        end: formatZohoDateTime(event.endTime),
+        timezone: timezone,
+      },
+      ...(event.attendees && event.attendees.length > 0 && {
+        attendees: event.attendees.map((email) => ({ email })),
+      }),
+      ...(event.description && { description: event.description }),
+      ...(event.location && { location: event.location }),
+    };
+
+    // Zoho Calendar API expects 'eventdata' as a form field with JSON value
+    const formData = new URLSearchParams();
+    formData.append('eventdata', JSON.stringify(eventData));
+
+    logger.debug({ eventData }, 'Creating Zoho calendar event');
+
     const response = await fetch(`${this.baseUrl}/calendars/${this.calendarId}/events`, {
       method: 'POST',
       headers: {
         Authorization: `Zoho-oauthtoken ${token}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        eventdata: {
-          title: event.title,
-          dateandtime: {
-            start: event.startTime.toISOString(),
-            end: event.endTime.toISOString(),
-            timezone: timezone,
-          },
-          attendees: event.attendees?.map((email) => ({ email })),
-          description: event.description,
-          location: event.location,
-        },
-      }),
+      body: formData.toString(),
     });
 
     if (!response.ok) {

@@ -135,7 +135,10 @@ export class ZohoCalendarService {
     }));
   }
 
-  async createEvent(event: Omit<CalendarEvent, 'id'>): Promise<CalendarEvent> {
+  async createEvent(
+    event: Omit<CalendarEvent, 'id'>,
+    timezone: string = 'America/New_York'
+  ): Promise<CalendarEvent> {
     const token = await this.getAccessToken();
 
     const response = await fetch(`${this.baseUrl}/calendars/${this.calendarId}/events`, {
@@ -150,7 +153,7 @@ export class ZohoCalendarService {
           dateandtime: {
             start: event.startTime.toISOString(),
             end: event.endTime.toISOString(),
-            timezone: 'America/New_York',
+            timezone: timezone,
           },
           attendees: event.attendees?.map((email) => ({ email })),
           description: event.description,

@@ -3,7 +3,7 @@
 ## Milestone: v1.0 - Smart Tax Nation Launch
 
 ### Phase 1: Smart Tax Nation Configuration
-**Status:** Not Started
+**Status:** Completed
 **Requirements:** REQ-009
 
 Set up all client-specific configuration and credentials for Smart Tax Nation.
@@ -24,9 +24,10 @@ Set up all client-specific configuration and credentials for Smart Tax Nation.
 ---
 
 ### Phase 2: Calendar Booking Flow
-**Status:** Not Started
+**Status:** Planning Complete
 **Requirements:** REQ-002
 **Depends on:** Phase 1
+**Plans:** 3 plans
 
 Get calendar availability and booking working end-to-end.
 
@@ -41,6 +42,11 @@ Get calendar availability and booking working end-to-end.
 - Working calendar integration for Smart Tax Nation
 - Automated OAuth token refresh
 - End-to-end booking test passing
+
+Plans:
+- [ ] 02-01-PLAN.md - Zoho OAuth Setup & Verification
+- [ ] 02-02-PLAN.md - Calendar Functions Testing & Timezone Fix
+- [ ] 02-03-PLAN.md - Confirmation Flow & End-to-End Validation
 
 ---
 

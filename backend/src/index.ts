@@ -14,6 +14,7 @@ import agentsRoutes from './routes/agents';
 import adminRoutes from './routes/admin';
 import webhookRoutes from './routes/webhooks';
 import divineRoutes from './routes/divine';
+import toolsRoutes from './routes/tools';
 import {
   initializeDivineServices,
   shutdownDivineServices,
@@ -52,6 +53,7 @@ app.use('/api/agents', apiLimiter, agentsRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 app.use('/api/webhooks', webhookRoutes); // No rate limiting for webhooks
 app.use('/api/divine', divineRoutes); // Divine Agentic Intelligence System
+app.use('/api/tools', toolsRoutes); // Retell Conversation Flow Tools
 
 // 404 Handler
 app.use((req, res) => {

@@ -450,4 +450,44 @@ router.get('/health', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /api/tools/debug-events
+ * Debug endpoint to see what events are on the calendar
+ */
+router.get('/debug-events', async (req: Request, res: Response) => {
+  try {
+    const { service } = await getCalendarService();
+
+    // Get events for the next 7 days
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 7);
+
+    const events = await (service as any).getEvents(startDate, endDate);
+
+    res.json({
+      success: true,
+      event_count: events.length,
+      events: events.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        startISO: e.startTime?.toISOString?.(),
+        endISO: e.endTime?.toISOString?.(),
+      })),
+      query: {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 export default router;

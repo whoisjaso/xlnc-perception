@@ -3,9 +3,9 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 2 - Calendar Booking Flow
-**Plan:** 02 of 02 (Calendar Booking Implementation) - COMPLETED
-**Status:** Phase 2 Complete
+**Current Phase:** 2 - Calendar Booking Flow (COMPLETE)
+**Plan:** 03 of 03 (Confirmation Flow & E2E) - COMPLETED
+**Status:** Phase 2 Complete - Ready for Phase 3
 
 Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 
@@ -84,6 +84,12 @@ Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 ## Blockers
 
 None currently - Calendar booking fully implemented and verified.
+
+## Pending Ideas
+
+| Todo | File | Priority |
+|------|------|----------|
+| Database-backed OAuth tokens | `.planning/todos/pending/db-backed-oauth-tokens.md` | Medium |
 
 ## Next Actions
 

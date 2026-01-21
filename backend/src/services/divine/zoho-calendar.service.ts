@@ -98,6 +98,24 @@ export class ZohoCalendarService {
     return this.accessToken!;
   }
 
+  /**
+   * Parse Zoho date format (yyyyMMdd'T'HHmmssZ) to JavaScript Date
+   */
+  private parseZohoDate(zohoDate: string): Date {
+    if (!zohoDate) return new Date(NaN);
+
+    // Zoho format: 20260121T090000Z
+    // Convert to ISO: 2026-01-21T09:00:00Z
+    const match = zohoDate.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/);
+    if (match) {
+      const [, year, month, day, hour, min, sec] = match;
+      return new Date(`${year}-${month}-${day}T${hour}:${min}:${sec}Z`);
+    }
+
+    // Fallback: try direct parsing
+    return new Date(zohoDate);
+  }
+
   async getEvents(startDate: Date, endDate: Date): Promise<CalendarEvent[]> {
     if (!this.isConfigured()) return [];
 
@@ -127,8 +145,8 @@ export class ZohoCalendarService {
     return (data.events || []).map((event: any) => ({
       id: event.uid,
       title: event.title,
-      startTime: new Date(event.dateandtime?.start),
-      endTime: new Date(event.dateandtime?.end),
+      startTime: this.parseZohoDate(event.dateandtime?.start),
+      endTime: this.parseZohoDate(event.dateandtime?.end),
       attendees: event.attendees?.map((a: any) => a.email) || [],
       description: event.description,
       location: event.location,

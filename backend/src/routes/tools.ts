@@ -452,49 +452,50 @@ router.get('/health', async (req: Request, res: Response) => {
 
 /**
  * GET /api/tools/debug-events
- * Debug endpoint to see what events are on the calendar
+ * Debug endpoint to see what events are on the calendar (shows raw Zoho data)
  */
 router.get('/debug-events', async (req: Request, res: Response) => {
   try {
     const { service } = await getCalendarService();
 
-    // Get events for the next 7 days - use UTC explicitly
+    // Get raw events from Zoho to see the actual date format
+    const token = await (service as any).getAccessToken();
     const now = new Date();
     const startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
     const endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 7, 23, 59, 59));
 
-    const events = await (service as any).getEvents(startDate, endDate);
+    const formatZohoDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const range = JSON.stringify({
+      start: formatZohoDate(startDate),
+      end: formatZohoDate(endDate),
+    });
+
+    const response = await fetch(
+      `https://calendar.zoho.com/api/v1/calendars/${(service as any).calendarId}/events?range=${encodeURIComponent(range)}`,
+      { headers: { Authorization: `Zoho-oauthtoken ${token}` } }
+    );
+
+    const rawData = await response.json();
 
     res.json({
       success: true,
-      event_count: events.length,
       server_time: now.toISOString(),
-      events: events.map((e: any) => {
-        let startISO = null;
-        let endISO = null;
-        try {
-          startISO = e.startTime instanceof Date ? e.startTime.toISOString() : String(e.startTime);
-        } catch { startISO = String(e.startTime); }
-        try {
-          endISO = e.endTime instanceof Date ? e.endTime.toISOString() : String(e.endTime);
-        } catch { endISO = String(e.endTime); }
-        return {
-          id: e.id,
-          title: e.title,
-          startISO,
-          endISO,
-        };
-      }),
+      event_count: rawData.events?.length || 0,
+      raw_events: rawData.events?.slice(0, 3).map((e: any) => ({
+        uid: e.uid,
+        title: e.title,
+        dateandtime: e.dateandtime,
+      })),
       query: {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
+        zohoRange: range,
       },
     });
   } catch (error) {
     res.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
     });
   }
 });

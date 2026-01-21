@@ -117,14 +117,22 @@ export class ErrorMonitorService {
 
     // Emit via WebSocket
     if (this.io) {
-      this.io.emit('error:logged', {
+      const errorEvent = {
         service,
         operation,
         severity,
         message: errorMessage,
         clientId: context.clientId,
         timestamp: new Date().toISOString(),
-      });
+      };
+
+      // Emit to admin room
+      this.io.to('admin').emit('error:logged', errorEvent);
+
+      // Emit to client-specific room if clientId exists
+      if (context.clientId) {
+        this.io.to(`client:${context.clientId}`).emit('error:logged', errorEvent);
+      }
     }
   }
 
@@ -180,13 +188,21 @@ export class ErrorMonitorService {
 
     // Emit critical alert via WebSocket
     if (this.io) {
-      this.io.emit('error:critical', {
+      const criticalEvent = {
         service: entry.service,
         operation: entry.operation,
         message: entry.errorMessage,
         clientId: entry.clientId,
         timestamp: new Date().toISOString(),
-      });
+      };
+
+      // Emit to admin room
+      this.io.to('admin').emit('error:critical', criticalEvent);
+
+      // Emit to client-specific room if clientId exists
+      if (entry.clientId) {
+        this.io.to(`client:${entry.clientId}`).emit('error:critical', criticalEvent);
+      }
     }
 
     logger.error(
@@ -386,11 +402,19 @@ export class ErrorMonitorService {
     }
   }
 
-  async getErrorsByClient(clientId: string, limit: number = 50): Promise<ErrorLog[]> {
+  async getErrorsByClient(
+    clientId: string,
+    limit: number = 50,
+    includeResolved: boolean = true
+  ): Promise<ErrorLog[]> {
+    const conditions = includeResolved
+      ? eq(errorLogs.clientId, clientId)
+      : and(eq(errorLogs.clientId, clientId), eq(errorLogs.resolved, false));
+
     return db
       .select()
       .from(errorLogs)
-      .where(eq(errorLogs.clientId, clientId))
+      .where(conditions)
       .orderBy(desc(errorLogs.createdAt))
       .limit(limit);
   }
@@ -402,6 +426,87 @@ export class ErrorMonitorService {
       .where(eq(errorLogs.service, service))
       .orderBy(desc(errorLogs.createdAt))
       .limit(limit);
+  }
+
+  /**
+   * Get error statistics for a specific client
+   */
+  async getClientStats(clientId: string, hours: number = 24): Promise<{
+    total: number;
+    unresolved: number;
+    critical: number;
+    bySeverity: Record<string, number>;
+    byService: Record<string, number>;
+  }> {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+    const errors = await db
+      .select()
+      .from(errorLogs)
+      .where(and(eq(errorLogs.clientId, clientId), gte(errorLogs.createdAt, since)))
+      .orderBy(desc(errorLogs.createdAt));
+
+    const bySeverity: Record<string, number> = {};
+    const byService: Record<string, number> = {};
+    let unresolved = 0;
+    let critical = 0;
+
+    for (const error of errors) {
+      if (error.severity) {
+        bySeverity[error.severity] = (bySeverity[error.severity] || 0) + 1;
+        if (error.severity === 'critical') critical++;
+      }
+      byService[error.service] = (byService[error.service] || 0) + 1;
+      if (!error.resolved) unresolved++;
+    }
+
+    return {
+      total: errors.length,
+      unresolved,
+      critical,
+      bySeverity,
+      byService,
+    };
+  }
+
+  /**
+   * Acknowledge an error (client user marks as seen, doesn't fully resolve)
+   * Returns false if error doesn't exist or doesn't belong to the client
+   */
+  async acknowledgeError(errorId: string, clientId: string, acknowledgedBy?: string): Promise<boolean> {
+    // First verify the error belongs to this client
+    const [error] = await db
+      .select()
+      .from(errorLogs)
+      .where(and(eq(errorLogs.id, errorId), eq(errorLogs.clientId, clientId)))
+      .limit(1);
+
+    if (!error) {
+      return false;
+    }
+
+    // Update the error with acknowledgment info in context
+    const existingContext = (error.context as Record<string, unknown>) || {};
+    await db
+      .update(errorLogs)
+      .set({
+        context: {
+          ...existingContext,
+          acknowledged: true,
+          acknowledgedBy,
+          acknowledgedAt: new Date().toISOString(),
+        },
+      })
+      .where(eq(errorLogs.id, errorId));
+
+    logger.info({ errorId, clientId, acknowledgedBy }, 'Error acknowledged by client');
+
+    // Emit via WebSocket to client room
+    if (this.io) {
+      this.io.to(`client:${clientId}`).emit('error:acknowledged', { errorId, acknowledgedBy });
+    }
+
+    return true;
   }
 }
 

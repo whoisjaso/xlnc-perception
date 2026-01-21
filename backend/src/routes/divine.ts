@@ -364,6 +364,92 @@ router.post('/errors/:errorId/resolve', authenticateToken, requireAdmin, async (
 });
 
 // ============================================
+// CLIENT ERROR ENDPOINTS (Non-Admin)
+// Allows users to see errors for their associated client
+// ============================================
+
+/**
+ * GET /divine/errors/client
+ * Get errors for authenticated user's client
+ */
+router.get('/errors/client', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const clientId = req.user?.clientId;
+    if (!clientId) {
+      return res.status(400).json(createErrorResponse('No client associated with your account', 400));
+    }
+
+    const { limit = '20', includeResolved = 'false' } = req.query;
+    const errors = await errorMonitorService.getErrorsByClient(
+      clientId,
+      parseInt(limit as string),
+      includeResolved === 'true'
+    );
+
+    res.json(
+      createTheatricalResponse({
+        errors,
+        total: errors.length,
+        clientId,
+      })
+    );
+  } catch (error) {
+    logger.error({ error }, 'Failed to get client errors');
+    res.status(500).json(createErrorResponse('Failed to get client errors', 500));
+  }
+});
+
+/**
+ * GET /divine/errors/client/stats
+ * Get error stats for authenticated user's client
+ */
+router.get('/errors/client/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const clientId = req.user?.clientId;
+    if (!clientId) {
+      return res.status(400).json(createErrorResponse('No client associated with your account', 400));
+    }
+
+    const { hours = '24' } = req.query;
+    const stats = await errorMonitorService.getClientStats(clientId, parseInt(hours as string));
+
+    res.json(createTheatricalResponse({ stats, clientId }));
+  } catch (error) {
+    logger.error({ error }, 'Failed to get client error stats');
+    res.status(500).json(createErrorResponse('Failed to get error stats', 500));
+  }
+});
+
+/**
+ * POST /divine/errors/:errorId/acknowledge
+ * Acknowledge an error as a client user (doesn't fully resolve, just marks seen)
+ */
+router.post('/errors/:errorId/acknowledge', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const clientId = req.user?.clientId;
+    if (!clientId) {
+      return res.status(400).json(createErrorResponse('No client associated with your account', 400));
+    }
+
+    // Verify error belongs to user's client before acknowledging
+    const acknowledged = await errorMonitorService.acknowledgeError(
+      req.params.errorId,
+      clientId,
+      req.user?.email
+    );
+
+    if (!acknowledged) {
+      return res.status(404).json(createErrorResponse('Error not found or not accessible', 404));
+    }
+
+    res.json(createTheatricalResponse({ acknowledged: true }));
+  } catch (error) {
+    logger.error({ error }, 'Failed to acknowledge error');
+    res.status(500).json(createErrorResponse('Failed to acknowledge error', 500));
+  }
+});
+
+// ============================================
 // CONVERSATION & ANALYTICS ENDPOINTS
 // ============================================
 

@@ -9,6 +9,7 @@ export interface AuthRequest extends Request {
     email: string;
     isAdmin: boolean;
     plan: string;
+    clientId?: string | null;
   };
 }
 
@@ -37,6 +38,7 @@ export const authenticateToken = (
       email: decoded.email,
       isAdmin: decoded.isAdmin,
       plan: decoded.plan,
+      clientId: decoded.clientId || null,
     };
     next();
   } catch (error) {

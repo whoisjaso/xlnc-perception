@@ -30,6 +30,7 @@ export interface UserProfile {
   isAdmin: boolean;
   plan: 'INITIATE' | 'SOVEREIGN' | 'EMPIRE';
   avatar?: string;
+  clientId?: string | null;
 }
 
 export interface SystemLog {

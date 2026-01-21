@@ -266,6 +266,31 @@ export const divineApi = {
     return response.data.data;
   },
 
+  // Client Error Monitoring (non-admin users)
+  async getClientErrors(limit?: number, includeResolved?: boolean): Promise<{ errors: ErrorLogEntry[]; total: number; clientId: string }> {
+    const response = await api.get('/divine/errors/client', { params: { limit, includeResolved } });
+    return response.data.data;
+  },
+
+  async getClientErrorStats(hours?: number): Promise<{
+    stats: {
+      total: number;
+      unresolved: number;
+      critical: number;
+      bySeverity: Record<string, number>;
+      byService: Record<string, number>;
+    };
+    clientId: string
+  }> {
+    const response = await api.get('/divine/errors/client/stats', { params: { hours } });
+    return response.data.data;
+  },
+
+  async acknowledgeError(errorId: string): Promise<{ acknowledged: boolean }> {
+    const response = await api.post(`/divine/errors/${errorId}/acknowledge`);
+    return response.data.data;
+  },
+
   // Conversations
   async getConversations(clientId: string, limit?: number): Promise<{ conversations: Conversation[]; total: number }> {
     const response = await api.get('/divine/conversations', { params: { clientId, limit } });

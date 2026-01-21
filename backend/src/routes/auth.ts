@@ -27,9 +27,9 @@ const loginSchema = z.object({
 });
 
 // Helper: Generate JWT tokens
-const generateTokens = (userId: string, email: string, isAdmin: boolean, plan: string) => {
+const generateTokens = (userId: string, email: string, isAdmin: boolean, plan: string, clientId?: string | null) => {
   const accessToken = jwt.sign(
-    { id: userId, email, isAdmin, plan },
+    { id: userId, email, isAdmin, plan, clientId: clientId || null },
     env.JWT_SECRET,
     { expiresIn: env.JWT_ACCESS_EXPIRY }
   );
@@ -149,7 +149,8 @@ router.post('/login', asyncHandler(async (req: AuthRequest, res: Response) => {
     user.id,
     user.email,
     user.isAdmin,
-    user.plan
+    user.plan,
+    user.clientId
   );
 
   // Set refresh token as HTTP-only cookie
@@ -172,6 +173,7 @@ router.post('/login', asyncHandler(async (req: AuthRequest, res: Response) => {
         plan: user.plan,
         isAdmin: user.isAdmin,
         avatarUrl: user.avatarUrl,
+        clientId: user.clientId,
       },
       message: theatricalMessages.USER_LOGGED_IN,
     }, {
@@ -215,7 +217,7 @@ router.post('/refresh', asyncHandler(async (req: AuthRequest, res: Response) => 
 
     // Generate new access token
     const accessToken = jwt.sign(
-      { id: user.id, email: user.email, isAdmin: user.isAdmin, plan: user.plan },
+      { id: user.id, email: user.email, isAdmin: user.isAdmin, plan: user.plan, clientId: user.clientId || null },
       env.JWT_SECRET,
       { expiresIn: env.JWT_ACCESS_EXPIRY }
     );
@@ -232,6 +234,7 @@ router.post('/refresh', asyncHandler(async (req: AuthRequest, res: Response) => 
           plan: user.plan,
           isAdmin: user.isAdmin,
           avatarUrl: user.avatarUrl,
+          clientId: user.clientId,
         },
         message: theatricalMessages.TOKEN_REFRESHED,
       })

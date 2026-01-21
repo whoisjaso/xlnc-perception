@@ -11,6 +11,7 @@ export const users = pgTable('users', {
   avatarUrl: varchar('avatar_url', { length: 500 }),
   retellApiKeyEncrypted: varchar('retell_api_key_encrypted', { length: 500 }),
   retellAgentId: varchar('retell_agent_id', { length: 255 }),
+  clientId: varchar('client_id', { length: 255 }), // Links user to a specific client for error visibility
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

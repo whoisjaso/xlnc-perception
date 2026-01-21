@@ -10,6 +10,9 @@ import RetellSetup from './RetellSetup';
 import DivineDashboard from './DivineDashboard';
 import SystemTutorial from '../components/SystemTutorial';
 import SovereignChat from '../components/SovereignChat';
+import ErrorNotificationBadge from '../components/ErrorNotificationBadge';
+import ErrorDrawer from '../components/ErrorDrawer';
+import { useErrorSocket } from '../src/hooks/useErrorSocket';
 import { ViewState, SystemLog, UserProfile } from '../types';
 import { LogOut, User, HelpCircle } from 'lucide-react';
 
@@ -24,6 +27,10 @@ const DashboardLayout: React.FC<Props> = ({ onLogout, user, onboardingActive = f
   const [logs, setLogs] = useState([] as SystemLog[]);
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasStartedTutorial, setHasStartedTutorial] = useState(false);
+  const [showErrorDrawer, setShowErrorDrawer] = useState(false);
+
+  // Initialize WebSocket connection for real-time error updates
+  useErrorSocket();
 
   // Determine starting view
   useEffect(() => {
@@ -132,9 +139,14 @@ const DashboardLayout: React.FC<Props> = ({ onLogout, user, onboardingActive = f
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button 
-                onClick={() => setShowTutorial(true)} 
-                className="text-gray-500 hover:text-xlnc-gold transition-colors flex items-center gap-2" 
+            {/* Error Notification Badge - shows when there are issues */}
+            {user?.clientId && (
+              <ErrorNotificationBadge onClick={() => setShowErrorDrawer(true)} />
+            )}
+
+            <button
+                onClick={() => setShowTutorial(true)}
+                className="text-gray-500 hover:text-xlnc-gold transition-colors flex items-center gap-2"
                 title="System Tutorial"
             >
                 <HelpCircle size={16} />
@@ -166,9 +178,12 @@ const DashboardLayout: React.FC<Props> = ({ onLogout, user, onboardingActive = f
           />
           
           {renderView()}
-          
+
           {/* Floating Chat Widget */}
           <SovereignChat />
+
+          {/* Error Drawer - slide out panel for viewing system issues */}
+          <ErrorDrawer isOpen={showErrorDrawer} onClose={() => setShowErrorDrawer(false)} />
         </div>
 
         <TerminalLog logs={logs} />

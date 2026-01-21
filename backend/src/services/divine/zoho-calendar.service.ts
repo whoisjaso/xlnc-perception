@@ -99,16 +99,25 @@ export class ZohoCalendarService {
   }
 
   /**
-   * Parse Zoho date format (yyyyMMdd'T'HHmmssZ) to JavaScript Date
+   * Parse Zoho date format to JavaScript Date
+   * Zoho returns: 20260121T040000-0600 (with timezone offset)
+   * Or: 20260121T090000Z (UTC)
    */
   private parseZohoDate(zohoDate: string): Date {
     if (!zohoDate) return new Date(NaN);
 
-    // Zoho format: 20260121T090000Z
-    // Convert to ISO: 2026-01-21T09:00:00Z
-    const match = zohoDate.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/);
-    if (match) {
-      const [, year, month, day, hour, min, sec] = match;
+    // Format with timezone offset: 20260121T040000-0600 or 20260121T040000+0530
+    const matchWithOffset = zohoDate.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})([+-])(\d{2})(\d{2})$/);
+    if (matchWithOffset) {
+      const [, year, month, day, hour, min, sec, sign, tzHour, tzMin] = matchWithOffset;
+      // Convert to ISO format with proper offset: 2026-01-21T04:00:00-06:00
+      return new Date(`${year}-${month}-${day}T${hour}:${min}:${sec}${sign}${tzHour}:${tzMin}`);
+    }
+
+    // Format with Z (UTC): 20260121T090000Z
+    const matchUTC = zohoDate.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
+    if (matchUTC) {
+      const [, year, month, day, hour, min, sec] = matchUTC;
       return new Date(`${year}-${month}-${day}T${hour}:${min}:${sec}Z`);
     }
 

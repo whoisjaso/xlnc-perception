@@ -5,7 +5,7 @@ import { ConversationAnalyzer } from '../services/ai/conversation-analyzer';
 import { ZohoCalendarService } from '../services/divine/zoho-calendar.service';
 import { contextBuilderService } from '../services/divine/context-builder.service';
 import { logger } from '../utils/logger';
-import { slackService } from '../services/divine/slack.service';
+import { alertingService } from '../services/divine/alerting.service';
 import { maskPhone } from '../utils/pii-mask';
 
 export class CentralRouter {
@@ -151,8 +151,8 @@ export class CentralRouter {
                 threshold: 500,
             }, 'context_request exceeded 500ms threshold');
 
-            // Send Slack alert for slow context_request
-            slackService.sendWarning(
+            // Send alert for slow context_request (routes via alertingService)
+            alertingService.warning(
                 'Slow context_request Response',
                 `context_request took ${responseTime}ms (threshold: 500ms)`,
                 { clientId: config.client_id }

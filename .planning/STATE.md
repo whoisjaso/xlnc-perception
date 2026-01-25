@@ -39,6 +39,13 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 - Successfully created test event in Zoho Calendar
 - **SUMMARY:** `.planning/phases/02-calendar-booking-flow/02-02-SUMMARY.md`
 
+### 2026-01-25 - Phase 3 Plan 03 Execution
+- Added idempotency key column to webhookEvents schema
+- Created webhook idempotency service with check/record/markProcessed
+- Integrated idempotency checking into webhook routes
+- Duplicate webhooks now return 200 OK with `duplicate: true`
+- **SUMMARY:** `.planning/phases/03-webhook-processing/03-03-SUMMARY.md`
+
 ### 2026-01-25 - Phase 3 Plan 04 Execution
 - Created multi-channel alerting service (Slack + Email + SMS)
 - Added severity-based routing (critical/error/warning/info)
@@ -70,6 +77,7 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 - **Zoho OAuth token refresh (Phase 2 Plan 1)**
 - **Calendar API access and slot retrieval (Phase 2 Plan 1)**
 - **Calendar event creation with correct timezone (Phase 2 Plan 2)**
+- **Webhook idempotency (Phase 3 Plan 3)**
 - **Multi-channel alerting service (Phase 3 Plan 4)**
 
 ## What Needs Work
@@ -89,6 +97,8 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 | 02-02 | Zoho API uses form-urlencoded | JSON body was rejected; eventdata as form field works |
 | 02-02 | Date format yyyyMMddTHHmmssZ | Other formats rejected with PATTERN_NOT_MATCHED |
 | 02-02 | Timezone from client config | Defaults to America/New_York for backward compatibility |
+| 03-03 | Idempotency key = clientId:callId:eventType | Unique across clients and event types |
+| 03-03 | Fail-open on idempotency check errors | Better to risk duplicate than block legitimate events |
 | 03-04 | Use existing email/sms services | email.service.ts and sms.service.ts already have multi-provider support |
 | 03-04 | Throttle key = title + clientId | Groups identical errors per client, allows first through immediately |
 
@@ -133,3 +143,4 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 | Client config service | `backend/src/services/divine/client-config.service.ts` |
 | Smart Tax Nation config | `backend/config/clients/smart-tax-nation.json` |
 | **Alerting Service** | `backend/src/services/divine/alerting.service.ts` |
+| **Idempotency Service** | `backend/src/services/divine/webhook-idempotency.service.ts` |

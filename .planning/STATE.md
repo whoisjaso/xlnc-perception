@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 2 - Calendar Booking Flow (COMPLETE)
-**Plan:** 03 of 03 (Confirmation Flow & E2E) - COMPLETED
-**Status:** Phase 2 Complete - Ready for Phase 3
+**Current Phase:** 3 - Webhook Processing
+**Plan:** 04 of 06 (Multi-Channel Error Alerting) - COMPLETED
+**Status:** In Progress
 
-Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
+Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progress)
 
 ## Session History
 
@@ -39,6 +39,13 @@ Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 - Successfully created test event in Zoho Calendar
 - **SUMMARY:** `.planning/phases/02-calendar-booking-flow/02-02-SUMMARY.md`
 
+### 2026-01-25 - Phase 3 Plan 04 Execution
+- Created multi-channel alerting service (Slack + Email + SMS)
+- Added severity-based routing (critical/error/warning/info)
+- Implemented 15-minute digest throttling to prevent alert fatigue
+- Updated CentralRouter to use alertingService
+- **SUMMARY:** `.planning/phases/03-webhook-processing/03-04-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -49,7 +56,7 @@ Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 
 ## Codebase Status
 
-**Backend:** TypeScript + Express, 20 Divine services exist
+**Backend:** TypeScript + Express, 20+ Divine services exist
 **Database:** PostgreSQL + Drizzle ORM, 11 tables
 **Frontend:** React + Vite dashboard exists
 **Integrations:** Services exist for Zoho, Twilio, SendGrid, Claude, Retell
@@ -63,12 +70,14 @@ Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 - **Zoho OAuth token refresh (Phase 2 Plan 1)**
 - **Calendar API access and slot retrieval (Phase 2 Plan 1)**
 - **Calendar event creation with correct timezone (Phase 2 Plan 2)**
+- **Multi-channel alerting service (Phase 3 Plan 4)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
 - Real-time dashboard data
-- Slack error alerting
+- ~~Slack error alerting~~ (Now multi-channel via alertingService)
 - SMS confirmation verification
+- Database schema for error logging (Phase 3 Plan 5)
 
 ## Accumulated Decisions
 
@@ -80,10 +89,16 @@ Progress: [###-------] 30% (Phase 1 complete, Phase 2 complete)
 | 02-02 | Zoho API uses form-urlencoded | JSON body was rejected; eventdata as form field works |
 | 02-02 | Date format yyyyMMddTHHmmssZ | Other formats rejected with PATTERN_NOT_MATCHED |
 | 02-02 | Timezone from client config | Defaults to America/New_York for backward compatibility |
+| 03-04 | Use existing email/sms services | email.service.ts and sms.service.ts already have multi-provider support |
+| 03-04 | Throttle key = title + clientId | Groups identical errors per client, allows first through immediately |
 
 ## Blockers
 
-None currently - Calendar booking fully implemented and verified.
+**CRITICAL: Zoho Refresh Token Expiry**
+- Zoho refresh tokens expire every 60 minutes
+- Agent will break if token expires mid-operation
+- Must implement proactive token refresh or database-backed token management
+- Related pending todo: db-backed-oauth-tokens.md
 
 ## Pending Ideas
 
@@ -93,15 +108,15 @@ None currently - Calendar booking fully implemented and verified.
 
 ## Next Actions
 
-1. Delete test event from Zoho Calendar (cb340d12e12448d39d76cbd27a65f921@zoho.com)
-2. Test end-to-end booking flow with Retell voice agent
-3. Proceed to Phase 3 (if defined) or validate production readiness
+1. Continue Phase 3 Plan 05 (Database Schema for error logging)
+2. Continue Phase 3 Plan 06 (Dashboard integration)
+3. Test end-to-end booking flow with Retell voice agent
 
 ## Session Continuity
 
-**Last session:** 2026-01-20
-**Stopped at:** Completed 02-02-PLAN.md (Calendar Booking Implementation)
-**Resume file:** None - Phase 2 complete
+**Last session:** 2026-01-25
+**Stopped at:** Completed 03-04-PLAN.md (Multi-Channel Error Alerting)
+**Resume file:** None - Continue to 03-05
 
 ## Important Files
 
@@ -117,3 +132,4 @@ None currently - Calendar booking fully implemented and verified.
 | Environment config | `backend/src/config/env.ts` |
 | Client config service | `backend/src/services/divine/client-config.service.ts` |
 | Smart Tax Nation config | `backend/config/clients/smart-tax-nation.json` |
+| **Alerting Service** | `backend/src/services/divine/alerting.service.ts` |

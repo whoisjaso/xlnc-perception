@@ -1,19 +1,19 @@
 import { RetellWebhookEvent, RouteDecision, ParallelAction, RetellCall } from './types';
 import { ClientConfig } from '../types';
 import { IntentClassifier, Intent } from '../services/ai/intent-classifier';
-import { CustomerMemory } from '../services/memory/customer';
 import { ConversationAnalyzer } from '../services/ai/conversation-analyzer';
 import { ZohoCalendarService } from '../services/divine/zoho-calendar.service';
+import { contextBuilderService } from '../services/divine/context-builder.service';
 import { logger } from '../utils/logger';
+import { slackService } from '../services/divine/slack.service';
+import { maskPhone } from '../utils/pii-mask';
 
 export class CentralRouter {
     private intentClassifier: IntentClassifier;
-    private customerMemory: CustomerMemory;
     private analyzer: ConversationAnalyzer;
 
     constructor() {
         this.intentClassifier = new IntentClassifier();
-        this.customerMemory = new CustomerMemory();
         this.analyzer = new ConversationAnalyzer();
     }
 
@@ -48,9 +48,12 @@ export class CentralRouter {
     }
 
     private async handleContextRequest(call: RetellCall, config: ClientConfig): Promise<RouteDecision> {
+        const startTime = Date.now();
+
         logger.info('Handling context_request for calendar availability', {
             callId: call.call_id,
-            clientId: config.client_id
+            clientId: config.client_id,
+            phone: maskPhone(call.from_number)
         });
 
         const response: Record<string, any> = {};
@@ -107,18 +110,55 @@ export class CentralRouter {
             }
         }
 
-        // Load customer memory if available
+        // Load customer context using contextBuilderService
         try {
-            const history = await this.customerMemory.getHistory(call.from_number);
-            if (history && history.length > 0) {
+            const customerContext = await contextBuilderService.buildContext(
+                call.from_number,
+                config
+            );
+
+            // Merge customer context into response
+            Object.assign(response, customerContext);
+
+            // Set returning customer flag based on context
+            if (customerContext.is_returning_customer === 'true') {
                 response.returning_customer = true;
-                response.previous_interactions = history.length;
-                response.last_call_summary = history[0]?.summary || '';
+                response.customer_name = customerContext.customer_name;
+                response.previous_interactions = parseInt(customerContext.call_count) || 0;
+                response.last_call_summary = customerContext.conversation_notes;
             } else {
                 response.returning_customer = false;
             }
         } catch (error) {
-            logger.error('Failed to fetch customer memory', { error });
+            logger.error({ error, phone: maskPhone(call.from_number) }, 'Failed to build customer context');
+            response.returning_customer = false;
+        }
+
+        // Track response time
+        const responseTime = Date.now() - startTime;
+        logger.info({
+            callId: call.call_id,
+            phone: maskPhone(call.from_number),
+            responseTimeMs: responseTime,
+            hasContext: Object.keys(response).length > 0,
+        }, 'context_request processed');
+
+        // Alert if response time exceeds 500ms threshold
+        if (responseTime > 500) {
+            logger.warn({
+                callId: call.call_id,
+                responseTimeMs: responseTime,
+                threshold: 500,
+            }, 'context_request exceeded 500ms threshold');
+
+            // Send Slack alert for slow context_request
+            slackService.sendWarning(
+                'Slow context_request Response',
+                `context_request took ${responseTime}ms (threshold: 500ms)`,
+                { clientId: config.client_id }
+            ).catch(err => {
+                logger.error({ error: err }, 'Failed to send slow response alert');
+            });
         }
 
         return {
@@ -131,11 +171,18 @@ export class CentralRouter {
         // Extract intent from transcript
         const intent = await this.intentClassifier.classify(call.transcript);
 
+        // Get customer history for analysis
+        const customerHistoryResult = await contextBuilderService.buildFullCustomerContext(
+            call.from_number,
+            config
+        );
+        const customerHistory = customerHistoryResult.customerContext;
+
         // Analyze conversation for behavioral signals
         const analysis = await this.analyzer.analyze({
             transcript: call.transcript,
             duration: call.duration_seconds,
-            customerHistory: await this.customerMemory.getHistory(call.from_number)
+            customerHistory: customerHistory
         });
 
         // Determine parallel actions

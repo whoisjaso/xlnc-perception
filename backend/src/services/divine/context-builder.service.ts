@@ -26,7 +26,7 @@ export class ContextBuilderService {
     const startTime = Date.now();
 
     try {
-      const customer = await customerService.getByPhone(phone);
+      const customer = await customerService.getByPhone(config.client_id, phone);
 
       if (customer) {
         const context = await this.buildReturningCustomerContext(customer, config);
@@ -53,7 +53,7 @@ export class ContextBuilderService {
     phone: string,
     config: ClientConfig
   ): Promise<ContextBuildResult> {
-    const customer = await customerService.getByPhone(phone);
+    const customer = await customerService.getByPhone(config.client_id, phone);
 
     if (!customer) {
       const variables = this.buildNewCustomerContext(phone, config);

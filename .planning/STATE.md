@@ -39,6 +39,13 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 - Successfully created test event in Zoho Calendar
 - **SUMMARY:** `.planning/phases/02-calendar-booking-flow/02-02-SUMMARY.md`
 
+### 2026-01-25 - Phase 3 Plan 02 Execution
+- Created PII masking utility with maskPhone, maskEmail, maskName functions
+- Added response time tracking to context_request (500ms threshold alerting)
+- Integrated PII masking import into webhook routes
+- Added webhook processing time tracking with logTheatrical
+- **SUMMARY:** `.planning/phases/03-webhook-processing/03-02-SUMMARY.md`
+
 ### 2026-01-25 - Phase 3 Plan 03 Execution
 - Added idempotency key column to webhookEvents schema
 - Created webhook idempotency service with check/record/markProcessed
@@ -97,6 +104,9 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 | 02-02 | Zoho API uses form-urlencoded | JSON body was rejected; eventdata as form field works |
 | 02-02 | Date format yyyyMMddTHHmmssZ | Other formats rejected with PATTERN_NOT_MATCHED |
 | 02-02 | Timezone from client config | Defaults to America/New_York for backward compatibility |
+| 03-02 | Phone mask format = ***4567 (last 4 digits) | Allows identification while protecting full number |
+| 03-02 | Names fully redacted as [name redacted] | Names are PII that should not appear in logs |
+| 03-02 | 500ms threshold for context_request alerts | Per REQ-001, <500ms response time critical for voice UX |
 | 03-03 | Idempotency key = clientId:callId:eventType | Unique across clients and event types |
 | 03-03 | Fail-open on idempotency check errors | Better to risk duplicate than block legitimate events |
 | 03-04 | Use existing email/sms services | email.service.ts and sms.service.ts already have multi-provider support |
@@ -144,3 +154,4 @@ Progress: [####------] 40% (Phase 1 complete, Phase 2 complete, Phase 3 in progr
 | Smart Tax Nation config | `backend/config/clients/smart-tax-nation.json` |
 | **Alerting Service** | `backend/src/services/divine/alerting.service.ts` |
 | **Idempotency Service** | `backend/src/services/divine/webhook-idempotency.service.ts` |
+| **PII Masking Utility** | `backend/src/utils/pii-mask.ts` |

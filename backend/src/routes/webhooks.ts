@@ -14,6 +14,7 @@ import { Text180Provider } from '../services/messaging/providers/txt180';
 import { clientConfigService } from '../services/divine/client-config.service';
 import { webhookIdempotencyService } from '../services/divine/webhook-idempotency.service';
 import { ClientConfig } from '../types';
+import { maskPhone } from '../utils/pii-mask';
 
 const router = Router();
 
@@ -72,6 +73,7 @@ const processRetellWebhook = async (
   res: Response,
   clientConfig: ClientConfig
 ): Promise<void> => {
+  const webhookStartTime = Date.now();
   const signature = req.headers['x-retell-signature'] as string;
   const payload = JSON.stringify(req.body);
 
@@ -258,12 +260,17 @@ const processRetellWebhook = async (
     // Mark webhook as processed
     await webhookIdempotencyService.markProcessed(webhookEventId);
 
+    // Log webhook processing duration
+    const webhookDuration = Date.now() - webhookStartTime;
+    logTheatrical.info(`Webhook processed in ${webhookDuration}ms for ${clientConfig.client_id}`);
+
     res.status(200).json({
       success: true,
       message: 'Webhook processed by Divine System',
       client: clientConfig.client_id,
       event: eventType,
-      decision: decision.action
+      decision: decision.action,
+      processingTimeMs: webhookDuration
     });
 
   } catch (error) {

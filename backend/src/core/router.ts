@@ -214,7 +214,7 @@ export class CentralRouter {
         if (this.shouldSyncCRM(intent, config)) {
             actions.push({
                 type: 'crm',
-                provider: config.crm_provider,
+                provider: 'zoho', // TODO: Add crm_provider to ClientConfig when multi-CRM support needed
                 // operation: intent.new_customer ? 'create' : 'update', // simplified for now
                 data: this.buildCRMData(call, intent, analysis),
                 immediate: false
@@ -248,7 +248,7 @@ export class CentralRouter {
     }
 
     private shouldSyncCRM(intent: Intent, config: ClientConfig): boolean {
-        return config.crm_provider !== 'none';
+        return config.zoho_crm_enabled === true;
     }
 
     private selectSMSTemplate(intent: Intent, analysis: any): string {

@@ -269,12 +269,12 @@ export class ContextBuilderService {
   }
 
   private formatPRISMScores(scores: {
-    significance: number;
-    acceptance: number;
-    approval: number;
-    intelligence: number;
-    pity: number;
-    power: number;
+    significance?: number;
+    acceptance?: number;
+    approval?: number;
+    intelligence?: number;
+    pity?: number;
+    power?: number;
   }): string {
     const entries = Object.entries(scores)
       .filter(([_, value]) => value > 40)

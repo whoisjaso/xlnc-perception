@@ -1,7 +1,11 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import dns from 'dns';
 import env from './env';
 import * as schema from '../db/schema/users';
+
+// Force IPv4 resolution for DNS lookups (fixes IPv6-only Supabase hosts)
+dns.setDefaultResultOrder('ipv4first');
 
 // Create PostgreSQL connection
 const connectionString = env.DATABASE_URL;
@@ -141,10 +145,36 @@ export const runMigrations = async (): Promise<void> => {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         event_type VARCHAR(100),
         retell_call_id VARCHAR(255),
+        client_id VARCHAR(100),
+        idempotency_key VARCHAR(400),
         payload JSONB,
         processed BOOLEAN DEFAULT false NOT NULL,
+        processed_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW() NOT NULL
       );
+    `;
+
+    // Add new columns to webhook_events if they don't exist (migration)
+    await queryClient`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'webhook_events' AND column_name = 'client_id') THEN
+          ALTER TABLE webhook_events ADD COLUMN client_id VARCHAR(100);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'webhook_events' AND column_name = 'idempotency_key') THEN
+          ALTER TABLE webhook_events ADD COLUMN idempotency_key VARCHAR(400);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'webhook_events' AND column_name = 'processed_at') THEN
+          ALTER TABLE webhook_events ADD COLUMN processed_at TIMESTAMP;
+        END IF;
+      END $$;
+    `;
+
+    // Create unique index on idempotency_key if it doesn't exist
+    await queryClient`
+      CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_idempotency_key_idx
+      ON webhook_events(idempotency_key)
+      WHERE idempotency_key IS NOT NULL;
     `;
 
     console.log('✅ Database migrations completed successfully');

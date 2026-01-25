@@ -4,7 +4,6 @@ import { createErrorResponse } from '../utils/theatrical';
 import { logTheatrical } from '../utils/logger';
 import { db } from '../config/database';
 import { callLogs } from '../db/schema/calls';
-import { webhookEvents } from '../db/schema/webhookEvents';
 import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
@@ -13,6 +12,7 @@ import { CentralRouter } from '../core/router';
 import { RetellWebhookEvent } from '../core/types';
 import { Text180Provider } from '../services/messaging/providers/txt180';
 import { clientConfigService } from '../services/divine/client-config.service';
+import { webhookIdempotencyService } from '../services/divine/webhook-idempotency.service';
 import { ClientConfig } from '../types';
 
 const router = Router();
@@ -90,18 +90,34 @@ const processRetellWebhook = async (
 
   const webhookData = req.body;
   const eventType = webhookData.event || 'call_ended';
+  const callId = webhookData.call?.call_id || webhookData.call_id;
 
   logTheatrical.info(`Retell webhook received for client ${clientConfig.client_id}: ${eventType}`);
 
-  try {
-    // Store raw webhook event with client ID
-    await db.insert(webhookEvents).values({
-      eventType,
-      retellCallId: webhookData.call?.call_id || webhookData.call_id,
-      clientId: clientConfig.client_id,
-      payload: webhookData,
-      processed: false,
+  // Check idempotency BEFORE processing
+  const idempotencyResult = await webhookIdempotencyService.checkAndRecord(
+    clientConfig.client_id,
+    callId,
+    eventType,
+    webhookData
+  );
+
+  if (idempotencyResult.isDuplicate) {
+    logTheatrical.info(`Duplicate webhook ignored: ${clientConfig.client_id}:${callId}:${eventType}`);
+    // Return 200 OK to prevent Retell retries
+    res.status(200).json({
+      success: true,
+      message: 'Webhook already processed (duplicate)',
+      client: clientConfig.client_id,
+      event: eventType,
+      duplicate: true,
     });
+    return;
+  }
+
+  const webhookEventId = idempotencyResult.eventId;
+
+  try {
 
     // Process call_ended or call_analyzed events
     if (eventType === 'call_ended' || eventType === 'call_analyzed') {
@@ -184,11 +200,6 @@ const processRetellWebhook = async (
         logTheatrical.success(`Stored new call log: ${callData.call_id}`);
       }
 
-      // Mark webhook as processed
-      await db
-        .update(webhookEvents)
-        .set({ processed: true })
-        .where(eq(webhookEvents.retellCallId, callData.call_id));
     }
 
     // --- DIVINE AGENTIC SYSTEM INTEGRATION ---
@@ -243,6 +254,9 @@ const processRetellWebhook = async (
         }
       }
     }
+
+    // Mark webhook as processed
+    await webhookIdempotencyService.markProcessed(webhookEventId);
 
     res.status(200).json({
       success: true,

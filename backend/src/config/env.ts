@@ -53,6 +53,13 @@ const envSchema = z.object({
   // Divine Agentic System - Slack Alerting
   SLACK_WEBHOOK_URL: z.string().optional(),
 
+  // Divine Agentic System - Multi-Channel Alerting
+  ALERT_EMAIL_ENABLED: z.string().optional().default('false'),
+  ALERT_EMAIL_RECIPIENTS: z.string().optional().default(''),  // Comma-separated emails
+  ALERT_SMS_ENABLED: z.string().optional().default('false'),
+  ALERT_SMS_RECIPIENTS: z.string().optional().default(''),    // Comma-separated phones
+  ALERT_THROTTLE_MINUTES: z.string().optional().default('15'), // Digest interval
+
   // Divine Agentic System - Zoho Mail
   ZOHO_SMTP_HOST: z.string().optional(),
   ZOHO_SMTP_PORT: z.string().transform(Number).optional(),

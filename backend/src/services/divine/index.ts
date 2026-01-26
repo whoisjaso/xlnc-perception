@@ -15,6 +15,7 @@ export { followUpWriterService, FollowUpWriterService, FollowUpContext } from '.
 export { smsService, SMSService, SendSMSResult } from './sms.service';
 export { emailService, EmailService, EmailOptions, SendEmailResult } from './email.service';
 export { messageQueueService, MessageQueueService } from './message-queue.service';
+export { reminderSchedulerService, ReminderSchedulerService } from './reminder-scheduler.service';
 
 // ============================================
 // CRM & CALENDAR SERVICES

@@ -4,10 +4,10 @@
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
 **Current Phase:** 4 - Follow-up Messaging (IN PROGRESS)
-**Plan:** 02 of 04 complete
+**Plan:** 03 of 04 complete
 **Status:** Executing Phase 4
 
-Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
+Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 
 ## Session History
 
@@ -80,6 +80,14 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 - Implemented cancelAppointmentReminders for appointment cancellation/reschedule
 - **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-02-SUMMARY.md`
 
+### 2026-01-26 - Phase 4 Plan 03 Execution
+- Created nurture-sequence.service.ts with Day 1 and Day 4 follow-ups for non-bookers
+- Enhanced post-call-processor with booking detection and intent-based routing
+- Bookings trigger immediate confirmation + reminder scheduling
+- Non-bookers with interest trigger nurture sequence
+- All messages include booking link and portal link
+- **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-03-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -111,6 +119,9 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 - **Business hours utility for message timing (Phase 4 Plan 1)**
 - **Appointment reminder scheduling with 24h and 1h reminders (Phase 4 Plan 2)**
 - **Reminder cancellation for rescheduled/cancelled appointments (Phase 4 Plan 2)**
+- **Nurture sequences for non-bookers with Day 1 and Day 4 follow-ups (Phase 4 Plan 3)**
+- **Booking detection and intent-based routing in post-call processor (Phase 4 Plan 3)**
+- **Immediate 24/7 confirmation SMS for bookings (Phase 4 Plan 3)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -119,7 +130,7 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 - SMS confirmation verification
 - ~~Message templates (Phase 4 Plan 2)~~ (Completed - reminder templates built)
 - ~~Reminder scheduling (Phase 4 Plan 2)~~ (Completed)
-- Nurture sequences (Phase 4 Plan 3)
+- ~~Nurture sequences (Phase 4 Plan 3)~~ (Completed)
 - Dashboard messaging integration (Phase 4 Plan 4)
 
 ## Accumulated Decisions
@@ -146,6 +157,10 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 | 04-02 | 24h and 1h reminder intervals | Standard reminder times for appointment show rate optimization |
 | 04-02 | appointmentId in metadata for cancellation | Drizzle lacks JSONB query; metadata filter reliable |
 | 04-02 | Default Smart Tax Nation links | Primary client config with override support per-appointment |
+| 04-03 | Nurture intents: booking_request, pricing_question, information_inquiry, sales_opportunity | Indicate interest but no conversion - worth following up |
+| 04-03 | Booking detection uses entities + summary phrases | Multiple sources for reliable detection |
+| 04-03 | Confirmation SMS immediate 24/7 | Per CONTEXT.md - confirmations always send regardless of hours |
+| 04-03 | Nurture pushed to business hours | Per CONTEXT.md - marketing/nurture only during business hours |
 
 ## Blockers
 
@@ -163,16 +178,16 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 
 ## Next Actions
 
-1. Continue Phase 4 Plan 03 (Nurture Sequences)
-2. Continue Phase 4 Plan 04 (Dashboard Integration)
-3. Test end-to-end booking flow with Retell voice agent
+1. Continue Phase 4 Plan 04 (Dashboard Integration)
+2. Test end-to-end booking flow with Retell voice agent
+3. Test nurture sequence scheduling with non-booking calls
 4. Test appointment reminders with scheduled queue processing
 
 ## Session Continuity
 
 **Last session:** 2026-01-26
-**Stopped at:** Completed 04-02-PLAN.md (Reminder Scheduling)
-**Resume file:** None - Continue to 04-03
+**Stopped at:** Completed 04-03-PLAN.md (Post-Call Message Routing)
+**Resume file:** None - Continue to 04-04
 
 ## Important Files
 
@@ -197,3 +212,5 @@ Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 | **Business Hours Utility** | `backend/src/utils/business-hours.ts` |
 | **Queue Processor Service** | `backend/src/services/divine/queue-processor.service.ts` |
 | **Reminder Scheduler Service** | `backend/src/services/divine/reminder-scheduler.service.ts` |
+| **Nurture Sequence Service** | `backend/src/services/divine/nurture-sequence.service.ts` |
+| **Post-Call Processor** | `backend/src/services/divine/post-call-processor.ts` |

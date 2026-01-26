@@ -4,7 +4,7 @@
 
 ### REQ-001: Webhook Handling
 **Priority:** Critical
-**Status:** Partial (existing code needs verification)
+**Status:** Complete (Phase 3)
 
 Handle all Retell AI webhook events:
 - `call_started` - Log call, load customer context
@@ -13,10 +13,10 @@ Handle all Retell AI webhook events:
 - `context_request` - Return customer memory to Retell
 
 **Acceptance Criteria:**
-- [ ] All event types routed correctly
-- [ ] Payload validation with Zod schemas
-- [ ] Response time <500ms for context_request
-- [ ] Idempotent handling (duplicate events don't cause issues)
+- [x] All event types routed correctly
+- [x] Payload validation with Zod schemas
+- [x] Response time <500ms for context_request (with alerting)
+- [x] Idempotent handling (duplicate events don't cause issues)
 
 ---
 
@@ -37,15 +37,15 @@ Check availability and book appointments via Zoho Calendar.
 
 ### REQ-003: Customer Memory
 **Priority:** High
-**Status:** Partial implementation exists
+**Status:** Complete (Phase 3)
 
 Persist customer data across calls for personalized experience.
 
 **Acceptance Criteria:**
-- [ ] Customer identified by phone number
-- [ ] Call history stored and retrievable
-- [ ] Context injected into Retell via `context_request`
-- [ ] Returning customers greeted by name
+- [x] Customer identified by phone number
+- [x] Call history stored and retrievable
+- [x] Context injected into Retell via `context_request`
+- [x] Returning customers greeted by name
 
 ---
 

@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 3 - Webhook Processing (COMPLETE)
-**Plan:** 04 of 04 - All plans complete
-**Status:** Phase 3 Complete - Ready for Phase 4
+**Current Phase:** 4 - Follow-up Messaging (IN PROGRESS)
+**Plan:** 01 of 04 complete
+**Status:** Executing Phase 4
 
-Progress: [#####-----] 50% (Phases 1-3 complete)
+Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 
 ## Session History
 
@@ -67,6 +67,12 @@ Progress: [#####-----] 50% (Phases 1-3 complete)
 - Updated CentralRouter to use alertingService
 - **SUMMARY:** `.planning/phases/03-webhook-processing/03-04-SUMMARY.md`
 
+### 2026-01-26 - Phase 4 Plan 01 Execution
+- Enhanced message queue schema with messageType, costCents, deadLetterAt, deadLetterReason, providerUsed
+- Created business-hours.ts utility with timezone-aware isWithinBusinessHours and getNextBusinessHour
+- Updated queue processor: fixed 1-minute retry intervals, provider tracking, cost calculation, dead letter handling
+- **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-01-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -94,13 +100,17 @@ Progress: [#####-----] 50% (Phases 1-3 complete)
 - **Customer context in context_request responses (Phase 3 Plan 1)**
 - **Webhook idempotency (Phase 3 Plan 3)**
 - **Multi-channel alerting service (Phase 3 Plan 4)**
+- **Enhanced message queue with cost tracking (Phase 4 Plan 1)**
+- **Business hours utility for message timing (Phase 4 Plan 1)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
 - Real-time dashboard data
 - ~~Slack error alerting~~ (Now multi-channel via alertingService)
 - SMS confirmation verification
-- Database schema for error logging (Phase 3 Plan 5)
+- Message templates (Phase 4 Plan 2)
+- Reminder scheduling (Phase 4 Plan 3)
+- Dashboard messaging integration (Phase 4 Plan 4)
 
 ## Accumulated Decisions
 
@@ -120,6 +130,9 @@ Progress: [#####-----] 50% (Phases 1-3 complete)
 | 03-03 | Fail-open on idempotency check errors | Better to risk duplicate than block legitimate events |
 | 03-04 | Use existing email/sms services | email.service.ts and sms.service.ts already have multi-provider support |
 | 03-04 | Throttle key = title + clientId | Groups identical errors per client, allows first through immediately |
+| 04-01 | Fixed 1-minute retry intervals | Per CONTEXT.md - predictable retry behavior for voice agent messages |
+| 04-01 | Dead letter status for permanent failures | Separates retriable failures from permanently failed for dashboard visibility |
+| 04-01 | SMS 0.75c/segment, Email 0.1c flat | Industry standard rates for Twilio/SendGrid cost tracking |
 
 ## Blockers
 
@@ -137,15 +150,16 @@ Progress: [#####-----] 50% (Phases 1-3 complete)
 
 ## Next Actions
 
-1. Continue Phase 3 Plan 05 (Database Schema for error logging)
-2. Continue Phase 3 Plan 06 (Dashboard integration)
-3. Test end-to-end booking flow with Retell voice agent
+1. Continue Phase 4 Plan 02 (Message Templates)
+2. Continue Phase 4 Plan 03 (Reminder Scheduling)
+3. Continue Phase 4 Plan 04 (Dashboard Integration)
+4. Test end-to-end booking flow with Retell voice agent
 
 ## Session Continuity
 
-**Last session:** 2026-01-25
-**Stopped at:** Completed 03-01-PLAN.md (Customer Context Fix)
-**Resume file:** None - Continue to 03-05
+**Last session:** 2026-01-26
+**Stopped at:** Completed 04-01-PLAN.md (Message Queue Foundation)
+**Resume file:** None - Continue to 04-02
 
 ## Important Files
 
@@ -166,3 +180,6 @@ Progress: [#####-----] 50% (Phases 1-3 complete)
 | **PII Masking Utility** | `backend/src/utils/pii-mask.ts` |
 | **Context Builder Service** | `backend/src/services/divine/context-builder.service.ts` |
 | **Context Request Test** | `backend/scripts/test-context-request.ts` |
+| **Message Queue Schema** | `backend/src/db/schema/messageQueue.ts` |
+| **Business Hours Utility** | `backend/src/utils/business-hours.ts` |
+| **Queue Processor Service** | `backend/src/services/divine/queue-processor.service.ts` |

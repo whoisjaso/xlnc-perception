@@ -15,6 +15,7 @@ export interface QueueStats {
   processing: number;
   sent: number;
   failed: number;
+  deadLetter: number;
   avgProcessingTimeMs: number;
 }
 
@@ -130,24 +131,29 @@ export class QueueProcessorService {
 
     try {
       let providerId: string | undefined;
+      let providerUsed: string | undefined;
 
       if (message.channel === 'sms') {
+        // SMS service has built-in failover (TXT180 -> Twilio or vice versa)
         const result = await smsService.send(message.recipient, message.body);
         if (result.success) {
           providerId = result.messageId;
+          providerUsed = result.provider; // Captures which provider actually sent
         } else {
-          throw new Error(result.error || 'SMS send failed');
+          throw new Error(result.error || 'SMS send failed on all providers');
         }
       } else if (message.channel === 'email') {
-        const result = await emailService.send(
-          message.recipient,
-          message.subject || 'Message from our team',
-          message.body
-        );
+        // Email service has built-in failover (Zoho SMTP -> SendGrid)
+        const result = await emailService.send({
+          to: message.recipient,
+          subject: message.subject || 'Message from our team',
+          body: message.body,
+        });
         if (result.success) {
           providerId = result.messageId;
+          providerUsed = 'sendgrid'; // Email service doesn't expose provider, defaulting
         } else {
-          throw new Error(result.error || 'Email send failed');
+          throw new Error(result.error || 'Email send failed on all providers');
         }
       } else {
         throw new Error(`Unknown channel: ${message.channel}`);
@@ -155,13 +161,22 @@ export class QueueProcessorService {
 
       const processingTimeMs = Date.now() - startTime;
 
-      // Mark as sent
+      // Calculate cost based on channel and message length
+      // SMS: ~0.75 cents per 160-char segment (Twilio rate)
+      // Email: ~0.1 cents per email (SendGrid rate)
+      const costCents = message.channel === 'sms'
+        ? Math.ceil(message.body.length / 160) * 0.75
+        : 0.1;
+
+      // Mark as sent with provider and cost tracking
       await db
         .update(messageQueue)
         .set({
           status: 'sent',
           providerId,
+          providerUsed,
           providerStatus: 'delivered',
+          costCents,
           processedAt: new Date(),
           lastAttemptAt: new Date(),
         })
@@ -209,38 +224,39 @@ export class QueueProcessorService {
     const maxAttempts = message.maxAttempts || 3;
 
     if (attempts >= maxAttempts) {
-      // Mark as failed permanently
+      // Move to dead letter queue - permanently failed
+      const now = new Date();
       await db
         .update(messageQueue)
         .set({
-          status: 'failed',
+          status: 'dead_letter',
           attempts,
-          lastAttemptAt: new Date(),
+          lastAttemptAt: now,
           lastError: errorMessage,
+          deadLetterAt: now,
+          deadLetterReason: `Failed after ${attempts} attempts: ${errorMessage}`,
         })
         .where(eq(messageQueue.id, message.id));
 
       // Send Slack alert
       await slackService.sendError(
-        'Message Delivery Failed',
-        `${message.channel.toUpperCase()} to ${message.recipient}`,
+        'Message Moved to Dead Letter Queue',
+        `${message.channel.toUpperCase()} to ${message.recipient} (messageId: ${message.id}, attempts: ${attempts})`,
         {
-          messageId: message.id,
           clientId: message.clientId,
-          channel: message.channel,
-          attempts,
           error: new Error(errorMessage),
         }
       );
 
-      // Emit failure
+      // Emit dead letter event
       if (this.io) {
-        this.io.emit('queue:message:failed', {
+        this.io.emit('queue:message:dead_letter', {
           messageId: message.id,
           channel: message.channel,
           recipient: message.recipient,
           error: errorMessage,
           attempts,
+          deadLetterAt: now.toISOString(),
         });
       }
 
@@ -250,7 +266,7 @@ export class QueueProcessorService {
           attempts,
           error: errorMessage,
         },
-        'Message permanently failed'
+        'Message moved to dead letter queue'
       );
 
       return {
@@ -261,8 +277,8 @@ export class QueueProcessorService {
       };
     }
 
-    // Exponential backoff retry
-    const retryDelayMs = Math.pow(2, attempts) * 1000;
+    // Fixed 1-minute retry intervals (per CONTEXT.md requirements)
+    const retryDelayMs = 60 * 1000; // 60 seconds
     const nextRetry = new Date(Date.now() + retryDelayMs);
 
     await db
@@ -326,6 +342,7 @@ export class QueueProcessorService {
       processing: 0,
       sent: 0,
       failed: 0,
+      deadLetter: 0,
       avgProcessingTimeMs: 0,
     };
 
@@ -334,6 +351,7 @@ export class QueueProcessorService {
       else if (row.status === 'processing') stats.processing = row.count;
       else if (row.status === 'sent') stats.sent = row.count;
       else if (row.status === 'failed') stats.failed = row.count;
+      else if (row.status === 'dead_letter') stats.deadLetter = row.count;
     }
 
     return stats;
@@ -357,19 +375,19 @@ export class QueueProcessorService {
   }
 
   async getFailedMessages(clientId?: string): Promise<MessageQueueItem[]> {
-    const query = db
+    if (clientId) {
+      return db
+        .select()
+        .from(messageQueue)
+        .where(and(eq(messageQueue.status, 'failed'), eq(messageQueue.clientId, clientId)))
+        .orderBy(desc(messageQueue.createdAt));
+    }
+
+    return db
       .select()
       .from(messageQueue)
       .where(eq(messageQueue.status, 'failed'))
       .orderBy(desc(messageQueue.createdAt));
-
-    if (clientId) {
-      return query.where(
-        and(eq(messageQueue.status, 'failed'), eq(messageQueue.clientId, clientId))
-      );
-    }
-
-    return query;
   }
 
   async retryMessage(messageId: string): Promise<boolean> {
@@ -379,7 +397,8 @@ export class QueueProcessorService {
       .where(eq(messageQueue.id, messageId))
       .limit(1);
 
-    if (!message || message.status !== 'failed') {
+    // Allow retry for both failed and dead_letter messages
+    if (!message || (message.status !== 'failed' && message.status !== 'dead_letter')) {
       return false;
     }
 
@@ -390,10 +409,12 @@ export class QueueProcessorService {
         attempts: 0,
         scheduledFor: new Date(),
         lastError: null,
+        deadLetterAt: null,
+        deadLetterReason: null,
       })
       .where(eq(messageQueue.id, messageId));
 
-    logger.info({ messageId }, 'Message queued for retry');
+    logger.info({ messageId, previousStatus: message.status }, 'Message queued for retry');
 
     // Trigger immediate processing
     this.processQueue();
@@ -420,6 +441,22 @@ export class QueueProcessorService {
     logger.info({ messageId }, 'Message cancelled');
 
     return true;
+  }
+
+  async getDeadLetterMessages(clientId?: string): Promise<MessageQueueItem[]> {
+    if (clientId) {
+      return db
+        .select()
+        .from(messageQueue)
+        .where(and(eq(messageQueue.status, 'dead_letter'), eq(messageQueue.clientId, clientId)))
+        .orderBy(desc(messageQueue.deadLetterAt));
+    }
+
+    return db
+      .select()
+      .from(messageQueue)
+      .where(eq(messageQueue.status, 'dead_letter'))
+      .orderBy(desc(messageQueue.deadLetterAt));
   }
 }
 

@@ -4,10 +4,10 @@
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
 **Current Phase:** 4 - Follow-up Messaging (IN PROGRESS)
-**Plan:** 01 of 04 complete
+**Plan:** 02 of 04 complete
 **Status:** Executing Phase 4
 
-Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
+Progress: [#######---] 60% (Phases 1-3 complete, Phase 4 Plans 1-2 complete)
 
 ## Session History
 
@@ -73,6 +73,13 @@ Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 - Updated queue processor: fixed 1-minute retry intervals, provider tracking, cost calculation, dead letter handling
 - **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-01-SUMMARY.md`
 
+### 2026-01-26 - Phase 4 Plan 02 Execution
+- Enhanced message queue with messageType support in enqueueSMS/enqueueEmail
+- Added getScheduledMessages method for querying future-scheduled messages
+- Created reminder-scheduler.service.ts with 24h and 1h appointment reminders
+- Implemented cancelAppointmentReminders for appointment cancellation/reschedule
+- **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-02-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -102,14 +109,17 @@ Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 - **Multi-channel alerting service (Phase 3 Plan 4)**
 - **Enhanced message queue with cost tracking (Phase 4 Plan 1)**
 - **Business hours utility for message timing (Phase 4 Plan 1)**
+- **Appointment reminder scheduling with 24h and 1h reminders (Phase 4 Plan 2)**
+- **Reminder cancellation for rescheduled/cancelled appointments (Phase 4 Plan 2)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
 - Real-time dashboard data
 - ~~Slack error alerting~~ (Now multi-channel via alertingService)
 - SMS confirmation verification
-- Message templates (Phase 4 Plan 2)
-- Reminder scheduling (Phase 4 Plan 3)
+- ~~Message templates (Phase 4 Plan 2)~~ (Completed - reminder templates built)
+- ~~Reminder scheduling (Phase 4 Plan 2)~~ (Completed)
+- Nurture sequences (Phase 4 Plan 3)
 - Dashboard messaging integration (Phase 4 Plan 4)
 
 ## Accumulated Decisions
@@ -133,6 +143,9 @@ Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 | 04-01 | Fixed 1-minute retry intervals | Per CONTEXT.md - predictable retry behavior for voice agent messages |
 | 04-01 | Dead letter status for permanent failures | Separates retriable failures from permanently failed for dashboard visibility |
 | 04-01 | SMS 0.75c/segment, Email 0.1c flat | Industry standard rates for Twilio/SendGrid cost tracking |
+| 04-02 | 24h and 1h reminder intervals | Standard reminder times for appointment show rate optimization |
+| 04-02 | appointmentId in metadata for cancellation | Drizzle lacks JSONB query; metadata filter reliable |
+| 04-02 | Default Smart Tax Nation links | Primary client config with override support per-appointment |
 
 ## Blockers
 
@@ -150,16 +163,16 @@ Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 
 ## Next Actions
 
-1. Continue Phase 4 Plan 02 (Message Templates)
-2. Continue Phase 4 Plan 03 (Reminder Scheduling)
-3. Continue Phase 4 Plan 04 (Dashboard Integration)
-4. Test end-to-end booking flow with Retell voice agent
+1. Continue Phase 4 Plan 03 (Nurture Sequences)
+2. Continue Phase 4 Plan 04 (Dashboard Integration)
+3. Test end-to-end booking flow with Retell voice agent
+4. Test appointment reminders with scheduled queue processing
 
 ## Session Continuity
 
 **Last session:** 2026-01-26
-**Stopped at:** Completed 04-01-PLAN.md (Message Queue Foundation)
-**Resume file:** None - Continue to 04-02
+**Stopped at:** Completed 04-02-PLAN.md (Reminder Scheduling)
+**Resume file:** None - Continue to 04-03
 
 ## Important Files
 
@@ -183,3 +196,4 @@ Progress: [######----] 55% (Phases 1-3 complete, Phase 4 Plan 1 complete)
 | **Message Queue Schema** | `backend/src/db/schema/messageQueue.ts` |
 | **Business Hours Utility** | `backend/src/utils/business-hours.ts` |
 | **Queue Processor Service** | `backend/src/services/divine/queue-processor.service.ts` |
+| **Reminder Scheduler Service** | `backend/src/services/divine/reminder-scheduler.service.ts` |

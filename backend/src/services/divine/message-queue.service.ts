@@ -1,9 +1,10 @@
 import { db } from '../../config/database';
-import { messageQueue, MessageQueueItem, NewMessageQueueItem } from '../../db/schema/messageQueue';
-import { eq, and, lte, desc, sql } from 'drizzle-orm';
+import { messageQueue, MessageQueueItem, NewMessageQueueItem, MessageType } from '../../db/schema/messageQueue';
+import { eq, and, lte, gte, asc, sql } from 'drizzle-orm';
 import { logger } from '../../utils/logger';
 import { smsService } from './sms.service';
 import { emailService } from './email.service';
+import { addHours } from 'date-fns';
 
 export class MessageQueueService {
   private processingInterval: NodeJS.Timeout | null = null;
@@ -28,6 +29,7 @@ export class MessageQueueService {
       conversationId?: string;
       scheduledFor?: Date;
       metadata?: Record<string, unknown>;
+      messageType?: MessageType;
     }
   ): Promise<MessageQueueItem> {
     return this.enqueue({
@@ -39,6 +41,7 @@ export class MessageQueueService {
       body,
       scheduledFor: options?.scheduledFor || new Date(),
       metadata: options?.metadata,
+      messageType: options?.messageType,
     });
   }
 
@@ -52,6 +55,7 @@ export class MessageQueueService {
       conversationId?: string;
       scheduledFor?: Date;
       metadata?: Record<string, unknown>;
+      messageType?: MessageType;
     }
   ): Promise<MessageQueueItem> {
     return this.enqueue({
@@ -64,6 +68,7 @@ export class MessageQueueService {
       body,
       scheduledFor: options?.scheduledFor || new Date(),
       metadata: options?.metadata,
+      messageType: options?.messageType,
     });
   }
 
@@ -207,6 +212,41 @@ export class MessageQueueService {
       sent: Number(sentResult?.count || 0),
       failed: Number(failedResult?.count || 0),
     };
+  }
+
+  /**
+   * Get scheduled messages for the next N hours
+   * Returns pending messages where scheduledFor is between now and now + hoursAhead
+   */
+  async getScheduledMessages(
+    hoursAhead: number = 48,
+    clientId?: string
+  ): Promise<MessageQueueItem[]> {
+    const now = new Date();
+    const futureLimit = addHours(now, hoursAhead);
+
+    const conditions = [
+      eq(messageQueue.status, 'pending'),
+      gte(messageQueue.scheduledFor, now),
+      lte(messageQueue.scheduledFor, futureLimit),
+    ];
+
+    if (clientId) {
+      conditions.push(eq(messageQueue.clientId, clientId));
+    }
+
+    const messages = await db
+      .select()
+      .from(messageQueue)
+      .where(and(...conditions))
+      .orderBy(asc(messageQueue.scheduledFor));
+
+    logger.info(
+      { hoursAhead, clientId, count: messages.length },
+      'Retrieved scheduled messages'
+    );
+
+    return messages;
   }
 }
 

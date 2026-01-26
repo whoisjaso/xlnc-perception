@@ -85,23 +85,37 @@ Plans:
 ---
 
 ### Phase 4: Follow-up Messaging
-**Status:** Not Started
+**Status:** Planned
 **Requirements:** REQ-004, REQ-005
 **Depends on:** Phase 2, Phase 3
+**Plans:** 5 plans
 
-SMS and Email follow-ups working after calls.
+SMS and Email follow-ups working after calls with dashboard visibility.
 
 **Goals:**
-- Test SMS queue processing
-- Test Email queue processing
-- Verify AI-generated email content
-- Test retry logic for failed messages
-- Verify delivery tracking
+- Immediate confirmation SMS/email after booking
+- Appointment reminders (24h and 1h before)
+- Nurture sequences for non-bookers (Day 1, Day 4)
+- Business hours enforcement for marketing messages
+- Real-time dashboard with WebSocket updates
+- Dead letter queue for permanently failed messages
+- Manual compose and edit-before-retry
 
 **Deliverables:**
-- SMS sends within 5 seconds
-- Email sends within 10 seconds
-- Retry logic working (3 attempts)
+- SMS sends immediately for confirmations
+- Reminders scheduled automatically on booking
+- Nurture sequences respect business hours
+- Dashboard shows real-time message status
+- Retry logic with 1-minute fixed intervals (3 attempts)
+- Admin can compose ad-hoc messages
+- Admin can edit and retry failed messages
+
+Plans:
+- [ ] 04-01-PLAN.md - Schema Enhancement & Business Hours Utility
+- [ ] 04-02-PLAN.md - Scheduled Messages & Reminders
+- [ ] 04-03-PLAN.md - Enhanced Post-Call Triggering & Nurture Sequences
+- [ ] 04-04-PLAN.md - Dashboard Messaging View (Real-time WebSocket)
+- [ ] 04-05-PLAN.md - Dashboard Manual Compose & Edit Retry
 
 ---
 

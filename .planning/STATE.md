@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 6 - Admin Dashboard Monitoring (IN PROGRESS)
-**Plan:** 02 of 03 complete
-**Status:** In Progress
+**Current Phase:** 6 - Admin Dashboard Monitoring (COMPLETE)
+**Plan:** 03 of 03 complete
+**Status:** Phase Complete
 
-Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
+Progress: [################] 100% (Phases 1-6 complete)
 
 ## Session History
 
@@ -151,6 +151,13 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 - Phone numbers masked to last 4 digits for privacy
 - **SUMMARY:** `.planning/phases/06-admin-dashboard-monitoring/06-02-SUMMARY.md`
 
+### 2026-01-27 - Phase 6 Plan 03 Execution
+- Added per-client filter dropdown to dashboard header with all configured clients
+- Passed clientId prop to MessageQueueViewer, ErrorMonitorPanel, and CallStatusPanel
+- Replaced static Recent Activity section with real-time CallStatusPanel
+- Added time range filter (1h/6h/24h/7d) to ErrorMonitorPanel
+- **SUMMARY:** `.planning/phases/06-admin-dashboard-monitoring/06-03-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -197,6 +204,7 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 - **CRM integration test script for end-to-end verification (Phase 5 Plan 4)**
 - **Dashboard overview wired to real error stats and recent conversation data (Phase 6 Plan 1)**
 - **Real-time call status via WebSocket with useCallSocket hook and CallStatusPanel (Phase 6 Plan 2)**
+- **Per-client filtering dropdown and time range filter in ErrorMonitorPanel (Phase 6 Plan 3)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -260,6 +268,9 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 | 06-02 | Events emitted to admin and client rooms | Role-based access to call events |
 | 06-02 | Recent calls capped at 20 in hook state | Prevent unbounded memory growth in frontend |
 | 05-04 | Direct database verification in test | Confirms OAuthTokenService actually persists to database |
+| 06-03 | Client filter null = All Clients, undefined for props | Clean mapping between select value and optional prop |
+| 06-03 | Client-side error filtering by clientId | Backend error API lacks clientId param; filter in frontend |
+| 06-03 | CallStatusPanel replaces static Recent Activity | Real-time WebSocket data superior to polled conversation list |
 
 ## Blockers
 
@@ -284,8 +295,8 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 ## Session Continuity
 
 **Last session:** 2026-01-27
-**Stopped at:** Completed 06-02-PLAN.md (Real-time Call Status)
-**Resume file:** None - continue with 06-03-PLAN.md
+**Stopped at:** Completed 06-03-PLAN.md (Client Filtering & Time Range)
+**Resume file:** None - Phase 6 complete, all phases done
 
 ## Important Files
 

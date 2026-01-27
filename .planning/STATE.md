@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 4 - Follow-up Messaging (COMPLETE)
-**Plan:** 05 of 05 complete
-**Status:** Phase 4 Complete
+**Current Phase:** 5 - CRM Synchronization (IN PROGRESS)
+**Plan:** 01 of 03 complete
+**Status:** Phase 5 In Progress
 
-Progress: [#########-] 75% (Phases 1-4 complete)
+Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 
 ## Session History
 
@@ -104,6 +104,13 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 - Integrated composer into MessageQueueViewer with Compose and Edit & Retry buttons
 - **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-05-SUMMARY.md`
 
+### 2026-01-27 - Phase 5 Plan 01 Execution
+- Created oauth_tokens database schema with Drizzle ORM
+- Created OAuthTokenService with getAccessToken, storeTokens, hasToken methods
+- Added database migration for oauth_tokens table
+- **RESOLVED BLOCKER:** Database-backed OAuth tokens now persist across restarts
+- **SUMMARY:** `.planning/phases/05-crm-synchronization/05-01-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -115,7 +122,7 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 ## Codebase Status
 
 **Backend:** TypeScript + Express, 20+ Divine services exist
-**Database:** PostgreSQL + Drizzle ORM, 11 tables
+**Database:** PostgreSQL + Drizzle ORM, 12 tables (oauth_tokens added)
 **Frontend:** React + Vite dashboard exists
 **Integrations:** Services exist for Zoho, Twilio, SendGrid, Claude, Retell
 
@@ -141,6 +148,8 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 - **Real-time WebSocket dashboard with live message queue updates (Phase 4 Plan 4)**
 - **Status tabs and scheduled message view in dashboard (Phase 4 Plan 4)**
 - **Prominent failed/dead letter alert banner (Phase 4 Plan 4)**
+- **Database-backed OAuth tokens with automatic refresh (Phase 5 Plan 1)**
+- **OAuthTokenService for Zoho CRM/Calendar integration (Phase 5 Plan 1)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -151,7 +160,10 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 - ~~Reminder scheduling (Phase 4 Plan 2)~~ (Completed)
 - ~~Nurture sequences (Phase 4 Plan 3)~~ (Completed)
 - ~~Dashboard messaging integration (Phase 4 Plan 4)~~ (Completed)
-- Manual message composition and edit-retry from dashboard (Phase 4 Plan 5 complete)
+- ~~Manual message composition and edit-retry from dashboard~~ (Phase 4 Plan 5 complete)
+- ~~Database-backed OAuth tokens~~ (Phase 5 Plan 1 complete)
+- Integration of OAuthTokenService with Zoho services (Phase 5 Plan 2)
+- Lead sync functionality (Phase 5 Plan 3)
 
 ## Accumulated Decisions
 
@@ -187,33 +199,36 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 | 04-05 | Manual messages use messageType 'manual' | Distinguishes admin-sent from automated messages |
 | 04-05 | Edit-retry preserves originalBody in metadata | Audit trail for edited messages |
 | 04-05 | Channel/recipient locked when editing | Only content (body/subject) should change on retry |
+| 05-01 | Unique index on (client_id, provider) | Enables upsert pattern for token storage |
+| 05-01 | Fall back to ZOHO_REFRESH_TOKEN env var | Backward compatibility during migration |
+| 05-01 | 5-minute buffer before token expiry | Prevents token expiry during multi-step operations |
 
 ## Blockers
 
-**CRITICAL: Zoho Refresh Token Expiry**
-- Zoho refresh tokens expire every 60 minutes
-- Agent will break if token expires mid-operation
-- Must implement proactive token refresh or database-backed token management
-- Related pending todo: db-backed-oauth-tokens.md
+~~**CRITICAL: Zoho Refresh Token Expiry**~~ **RESOLVED in Phase 5 Plan 1**
+- ~~Zoho refresh tokens expire every 60 minutes~~
+- ~~Agent will break if token expires mid-operation~~
+- ~~Must implement proactive token refresh or database-backed token management~~
+- **Solution:** OAuthTokenService with database persistence and automatic refresh
 
 ## Pending Ideas
 
 | Todo | File | Priority |
 |------|------|----------|
-| Database-backed OAuth tokens | `.planning/todos/pending/db-backed-oauth-tokens.md` | Medium |
+| ~~Database-backed OAuth tokens~~ | ~~`.planning/todos/pending/db-backed-oauth-tokens.md`~~ | ~~Medium~~ DONE |
 
 ## Next Actions
 
-1. Continue Phase 4 Plan 04 (Dashboard Integration)
-2. Test end-to-end booking flow with Retell voice agent
-3. Test nurture sequence scheduling with non-booking calls
-4. Test appointment reminders with scheduled queue processing
+1. Continue Phase 5 Plan 02 (Zoho Service Integration)
+2. Continue Phase 5 Plan 03 (Lead Sync)
+3. Test end-to-end booking flow with Retell voice agent
+4. Test nurture sequence scheduling with non-booking calls
 
 ## Session Continuity
 
 **Last session:** 2026-01-27
-**Stopped at:** Completed 04-05-PLAN.md (Manual Message Composition)
-**Resume file:** None - Phase 4 complete, continue to Phase 5
+**Stopped at:** Completed 05-01-PLAN.md (OAuth Token Infrastructure)
+**Resume file:** None - Continue to Phase 5 Plan 02
 
 ## Important Files
 
@@ -241,3 +256,5 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 | **Nurture Sequence Service** | `backend/src/services/divine/nurture-sequence.service.ts` |
 | **Post-Call Processor** | `backend/src/services/divine/post-call-processor.ts` |
 | **Message Composer** | `components/divine/MessageComposer.tsx` |
+| **OAuth Tokens Schema** | `backend/src/db/schema/oauthTokens.ts` |
+| **OAuth Token Service** | `backend/src/services/divine/oauth-token.service.ts` |

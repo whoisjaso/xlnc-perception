@@ -1,6 +1,7 @@
 // Divine Agentic Intelligence System - Webhook Handler Service
 // Central routing for all Retell webhook events
 
+import { Server as SocketServer } from 'socket.io';
 import { logger } from '../../utils/logger';
 import {
   RetellWebhookEvent,
@@ -23,6 +24,7 @@ export interface WebhookHandlerResult {
 
 export class WebhookHandlerService {
   private readonly eventHandlers: Map<string, (call: RetellCall, config: ClientConfig) => Promise<WebhookResponse>>;
+  private io: SocketServer | null = null;
 
   constructor() {
     this.eventHandlers = new Map([
@@ -30,6 +32,11 @@ export class WebhookHandlerService {
       ['call_ended', this.handleCallEnded.bind(this)],
       ['call_analyzed', this.handleCallAnalyzed.bind(this)],
     ]);
+  }
+
+  setSocketServer(io: SocketServer): void {
+    this.io = io;
+    logger.info('WebhookHandlerService Socket.IO server attached');
   }
 
   async validateAndRoute(
@@ -146,6 +153,21 @@ export class WebhookHandlerService {
       phone,
     });
 
+    // Emit call started event to WebSocket
+    if (this.io) {
+      const callEvent = {
+        callId: call.call_id,
+        clientId: config.client_id,
+        phone: phone.slice(-4), // Last 4 digits only for privacy
+        direction: call.direction || 'inbound',
+        agentId: call.agent_id,
+        timestamp: new Date().toISOString(),
+      };
+      this.io.to('admin').emit('call:started', callEvent);
+      this.io.to(`client:${config.client_id}`).emit('call:started', callEvent);
+      logger.debug({ callId: call.call_id }, 'Emitted call:started event');
+    }
+
     // Build context for Retell dynamic variables
     const context = await contextBuilderService.buildContext(phone, config);
 
@@ -167,6 +189,20 @@ export class WebhookHandlerService {
       },
       'Call ended'
     );
+
+    // Emit call ended event to WebSocket
+    if (this.io) {
+      const callEvent = {
+        callId: call.call_id,
+        clientId: config.client_id,
+        durationMs: call.duration_ms,
+        status: call.call_status,
+        timestamp: new Date().toISOString(),
+      };
+      this.io.to('admin').emit('call:ended', callEvent);
+      this.io.to(`client:${config.client_id}`).emit('call:ended', callEvent);
+      logger.debug({ callId: call.call_id }, 'Emitted call:ended event');
+    }
 
     // Quick response - heavy processing happens in background
     return {

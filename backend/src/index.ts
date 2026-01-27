@@ -20,6 +20,7 @@ import {
   shutdownDivineServices,
   queueProcessorService,
   errorMonitorService,
+  webhookHandlerService,
   getDivineServicesStatus,
 } from './services/divine';
 
@@ -104,9 +105,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Attach Socket.IO to queue processor and error monitor
+// Attach Socket.IO to queue processor, error monitor, and webhook handler
 queueProcessorService.setSocketServer(io);
 errorMonitorService.setSocketServer(io);
+webhookHandlerService.setSocketServer(io);
 
 // Start server
 const startServer = async () => {

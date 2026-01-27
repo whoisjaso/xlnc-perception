@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 5 - CRM Synchronization (COMPLETE)
-**Plan:** 04 of 04 complete
-**Status:** Phase 5 Complete
+**Current Phase:** 6 - Admin Dashboard Monitoring (IN PROGRESS)
+**Plan:** 02 of 03 complete
+**Status:** In Progress
 
-Progress: [############] 100% (Phases 1-5 complete)
+Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 
 ## Session History
 
@@ -137,6 +137,13 @@ Progress: [############] 100% (Phases 1-5 complete)
 - **NOTE:** Database connectivity required for full test execution
 - **SUMMARY:** `.planning/phases/05-crm-synchronization/05-04-SUMMARY.md`
 
+### 2026-01-27 - Phase 6 Plan 02 Execution
+- Added WebSocket call:started and call:ended emissions to webhookHandlerService
+- Created useCallSocket React hook for real-time call event consumption
+- Created CallStatusPanel component with active/recent call display
+- Phone numbers masked to last 4 digits for privacy
+- **SUMMARY:** `.planning/phases/06-admin-dashboard-monitoring/06-02-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -181,6 +188,7 @@ Progress: [############] 100% (Phases 1-5 complete)
 - **Enhanced CRM sync with appointment data and PRISM insights (Phase 5 Plan 3)**
 - **CRM sync failures trigger multi-channel alerts (Phase 5 Plan 3)**
 - **CRM integration test script for end-to-end verification (Phase 5 Plan 4)**
+- **Real-time call status via WebSocket with useCallSocket hook and CallStatusPanel (Phase 6 Plan 2)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -240,6 +248,9 @@ Progress: [############] 100% (Phases 1-5 complete)
 | 05-02 | Both services delegate to OAuthTokenService | Eliminates duplicate token refresh logic, enables DB persistence |
 | 05-02 | serviceClientId parameter with 'default' fallback | Maintains backward compatibility while enabling multi-tenant support |
 | 05-04 | Test phone +15555550123 | Standard test phone format for CRM integration tests |
+| 06-02 | Phone masked to last 4 digits in WebSocket events | Privacy protection for real-time call monitoring |
+| 06-02 | Events emitted to admin and client rooms | Role-based access to call events |
+| 06-02 | Recent calls capped at 20 in hook state | Prevent unbounded memory growth in frontend |
 | 05-04 | Direct database verification in test | Confirms OAuthTokenService actually persists to database |
 
 ## Blockers
@@ -265,8 +276,8 @@ Progress: [############] 100% (Phases 1-5 complete)
 ## Session Continuity
 
 **Last session:** 2026-01-27
-**Stopped at:** Completed 05-04-PLAN.md (CRM Integration Test) - Phase 5 Complete
-**Resume file:** None - Phase 5 fully complete, ready for Phase 6 or 7
+**Stopped at:** Completed 06-02-PLAN.md (Real-time Call Status)
+**Resume file:** None - continue with 06-03-PLAN.md
 
 ## Important Files
 

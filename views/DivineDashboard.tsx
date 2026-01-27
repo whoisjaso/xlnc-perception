@@ -155,49 +155,8 @@ const DivineDashboard: React.FC = () => {
               {/* System Status */}
               <DivineStatusWidget />
 
-              {/* Recent Activity */}
-              <div className="bg-[#0A0A0A] border border-white/5 p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Phone size={18} className="text-xlnc-gold" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Recent Call Activity</h3>
-                </div>
-
-                <div className="space-y-3">
-                  {recentCalls.length === 0 ? (
-                    <div className="text-center py-8 text-gray-600">
-                      <Phone size={32} className="mx-auto mb-3 opacity-30" />
-                      <div className="text-sm">No recent calls</div>
-                      <div className="text-[10px] mt-1">Calls will appear here as they are processed</div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {recentCalls.map((call: Conversation) => (
-                        <div key={call.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${
-                              call.status === 'completed' ? 'bg-emerald-500' :
-                              call.status === 'in_progress' ? 'bg-amber-500 animate-pulse' :
-                              'bg-gray-500'
-                            }`} />
-                            <div>
-                              <div className="text-sm text-white">
-                                {call.intent || 'Unknown Intent'}
-                              </div>
-                              <div className="text-[10px] text-gray-500">
-                                {call.durationMs ? `${Math.round(call.durationMs / 1000)}s` : 'In Progress'}
-                                {call.sentiment && ` • ${call.sentiment}`}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-[10px] text-gray-500">
-                            {new Date(call.createdAt).toLocaleTimeString()}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Real-time Call Status */}
+              <CallStatusPanel clientId={selectedClientId || undefined} maxRecent={5} />
             </div>
 
             {/* Full Width Error Summary */}
@@ -245,10 +204,10 @@ const DivineDashboard: React.FC = () => {
         );
 
       case 'queue':
-        return <MessageQueueViewer />;
+        return <MessageQueueViewer clientId={selectedClientId || undefined} />;
 
       case 'errors':
-        return <ErrorMonitorPanel />;
+        return <ErrorMonitorPanel clientId={selectedClientId || undefined} />;
 
       case 'analytics':
         return <PRISMAnalytics />;

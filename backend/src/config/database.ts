@@ -177,6 +177,28 @@ export const runMigrations = async (): Promise<void> => {
       WHERE idempotency_key IS NOT NULL;
     `;
 
+    // Create oauth_tokens table for persistent OAuth token storage
+    await queryClient`
+      CREATE TABLE IF NOT EXISTS oauth_tokens (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        client_id VARCHAR(255) NOT NULL,
+        provider VARCHAR(50) NOT NULL,
+        access_token TEXT,
+        refresh_token TEXT NOT NULL,
+        token_expiry TIMESTAMP,
+        scopes TEXT,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+      );
+    `;
+
+    // Create unique index on (client_id, provider) for upsert pattern
+    await queryClient`
+      CREATE UNIQUE INDEX IF NOT EXISTS oauth_tokens_client_provider_unique
+      ON oauth_tokens(client_id, provider);
+    `;
+
     console.log('✅ Database migrations completed successfully');
   } catch (error) {
     console.error('❌ Database migration failed:', error);

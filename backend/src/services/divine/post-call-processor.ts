@@ -8,6 +8,7 @@ import { zohoCRMService } from './zoho-crm.service';
 import { slackService } from './slack.service';
 import { reminderSchedulerService } from './reminder-scheduler.service';
 import { nurtureSequenceService } from './nurture-sequence.service';
+import { alertingService } from './alerting.service';
 
 export interface PostCallData {
   callId: string;
@@ -70,26 +71,22 @@ export class PostCallProcessor {
       // 7. Sync to CRM if configured
       if (zohoCRMService.isConfigured()) {
         try {
-          const lead = await zohoCRMService.getOrCreateByPhone(data.phone, {
-            leadSource: 'Voice AI',
-            description: `Last call: ${data.summary || 'No summary'}`,
-          });
-
-          await zohoCRMService.addNote(
-            lead.id,
-            `Call Summary:\n${data.summary || 'No summary'}\n\nIntent: ${intent}\n\nDuration: ${Math.round((data.durationMs || 0) / 1000)}s`,
-            `Voice AI Call - ${new Date().toLocaleDateString()}`
-          );
-
-          // Update customer with CRM ID
-          if (!customer.crmId) {
-            await customerService.update(customer.id, {
-              crmId: lead.id,
-              crmProvider: 'zoho',
-            });
-          }
+          await this.syncToCRM(data, customer, intent, entities, prismAnalysis);
         } catch (error) {
           logger.error({ error, callId: data.callId }, 'CRM sync failed');
+
+          // Alert via multi-channel alerting service
+          await alertingService.error(
+            'CRM Sync Failed',
+            `Lead sync failed for call ${data.callId}. Customer: ${data.phone}`,
+            {
+              clientId: data.clientId,
+              callId: data.callId,
+              error: error instanceof Error ? error : new Error(String(error)),
+            }
+          );
+
+          // Continue processing - graceful degradation per REQ-006
         }
       }
 
@@ -242,6 +239,101 @@ export class PostCallProcessor {
     if (positiveCount > negativeCount + 1) return 'positive';
     if (negativeCount > positiveCount + 1) return 'negative';
     return 'neutral';
+  }
+
+  /**
+   * Sync customer and call data to CRM with enhanced field mapping.
+   * Per 05-RESEARCH.md: Include appointment data, customer details, PRISM scores.
+   */
+  private async syncToCRM(
+    data: PostCallData,
+    customer: { id: string; name?: string | null; email?: string | null; crmId?: string | null },
+    intent: string,
+    entities: Record<string, string>,
+    prismAnalysis: PRISMAnalysis
+  ): Promise<void> {
+    // Build lead data with customer details
+    const leadData: {
+      leadSource: string;
+      description: string;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      customFields?: Record<string, unknown>;
+    } = {
+      leadSource: 'Voice AI',
+      description: `Last call: ${data.summary || 'No summary'}`,
+    };
+
+    // Add customer name if available
+    if (customer.name) {
+      const nameParts = customer.name.split(' ');
+      leadData.firstName = nameParts[0];
+      if (nameParts.length > 1) {
+        leadData.lastName = nameParts.slice(1).join(' ');
+      }
+    }
+
+    // Add email if available
+    if (customer.email) {
+      leadData.email = customer.email;
+    }
+
+    // Add custom fields for CRM
+    leadData.customFields = {
+      Last_Intent: intent,
+      Total_Calls: (customer as { totalCalls?: number }).totalCalls || 1,
+    };
+
+    // Add dominant PRISM need if detected
+    if (prismAnalysis.dominantNeeds && prismAnalysis.dominantNeeds.length > 0) {
+      leadData.customFields.PRISM_Dominant = prismAnalysis.dominantNeeds[0];
+    }
+
+    // Get or create lead
+    const lead = await zohoCRMService.getOrCreateByPhone(data.phone, leadData);
+
+    // Build comprehensive note content
+    const noteContent: string[] = [
+      `Call Summary:`,
+      data.summary || 'No summary available',
+      '',
+      `Intent: ${intent}`,
+      `Duration: ${Math.round((data.durationMs || 0) / 1000)}s`,
+    ];
+
+    // Add appointment info if booked
+    if (entities['appointment_time']) {
+      noteContent.push('');
+      noteContent.push('--- Appointment Details ---');
+      noteContent.push(`Scheduled: ${entities['appointment_time']}`);
+      if (entities['appointment_type']) {
+        noteContent.push(`Type: ${entities['appointment_type']}`);
+      }
+    }
+
+    // Add PRISM behavioral insights
+    if (prismAnalysis.dominantNeeds && prismAnalysis.dominantNeeds.length > 0) {
+      noteContent.push('');
+      noteContent.push('--- Behavioral Insights ---');
+      noteContent.push(`Dominant needs: ${prismAnalysis.dominantNeeds.join(', ')}`);
+    }
+
+    await zohoCRMService.addNote(
+      lead.id,
+      noteContent.join('\n'),
+      `Voice AI Call - ${new Date().toLocaleDateString()}`
+    );
+
+    // Update customer with CRM ID if not already linked
+    if (!customer.crmId) {
+      await customerService.update(customer.id, {
+        crmId: lead.id,
+        crmProvider: 'zoho',
+      });
+    }
+
+    logger.info({ callId: data.callId, leadId: lead.id }, 'CRM sync completed');
   }
 
   /**

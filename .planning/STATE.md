@@ -3,11 +3,11 @@
 ## Current Status
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
-**Current Phase:** 4 - Follow-up Messaging (IN PROGRESS)
-**Plan:** 03 of 04 complete
-**Status:** Executing Phase 4
+**Current Phase:** 4 - Follow-up Messaging (COMPLETE)
+**Plan:** 05 of 05 complete
+**Status:** Phase 4 Complete
 
-Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
+Progress: [#########-] 75% (Phases 1-4 complete)
 
 ## Session History
 
@@ -88,6 +88,13 @@ Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 - All messages include booking link and portal link
 - **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-03-SUMMARY.md`
 
+### 2026-01-27 - Phase 4 Plan 05 Execution
+- Added POST /divine/queue/manual for ad-hoc SMS/email sending
+- Added POST /divine/queue/retry/:messageId/edit for edit-before-retry
+- Created MessageComposer React component with compose and edit modes
+- Integrated composer into MessageQueueViewer with Compose and Edit & Retry buttons
+- **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-05-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -131,7 +138,8 @@ Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 - ~~Message templates (Phase 4 Plan 2)~~ (Completed - reminder templates built)
 - ~~Reminder scheduling (Phase 4 Plan 2)~~ (Completed)
 - ~~Nurture sequences (Phase 4 Plan 3)~~ (Completed)
-- Dashboard messaging integration (Phase 4 Plan 4)
+- ~~Dashboard messaging integration (Phase 4 Plan 4)~~ (Completed)
+- Manual message composition and edit-retry from dashboard (Phase 4 Plan 5 complete)
 
 ## Accumulated Decisions
 
@@ -161,6 +169,9 @@ Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 | 04-03 | Booking detection uses entities + summary phrases | Multiple sources for reliable detection |
 | 04-03 | Confirmation SMS immediate 24/7 | Per CONTEXT.md - confirmations always send regardless of hours |
 | 04-03 | Nurture pushed to business hours | Per CONTEXT.md - marketing/nurture only during business hours |
+| 04-05 | Manual messages use messageType 'manual' | Distinguishes admin-sent from automated messages |
+| 04-05 | Edit-retry preserves originalBody in metadata | Audit trail for edited messages |
+| 04-05 | Channel/recipient locked when editing | Only content (body/subject) should change on retry |
 
 ## Blockers
 
@@ -185,9 +196,9 @@ Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 
 ## Session Continuity
 
-**Last session:** 2026-01-26
-**Stopped at:** Completed 04-03-PLAN.md (Post-Call Message Routing)
-**Resume file:** None - Continue to 04-04
+**Last session:** 2026-01-27
+**Stopped at:** Completed 04-05-PLAN.md (Manual Message Composition)
+**Resume file:** None - Phase 4 complete, continue to Phase 5
 
 ## Important Files
 
@@ -214,3 +225,4 @@ Progress: [########--] 65% (Phases 1-3 complete, Phase 4 Plans 1-3 complete)
 | **Reminder Scheduler Service** | `backend/src/services/divine/reminder-scheduler.service.ts` |
 | **Nurture Sequence Service** | `backend/src/services/divine/nurture-sequence.service.ts` |
 | **Post-Call Processor** | `backend/src/services/divine/post-call-processor.ts` |
+| **Message Composer** | `components/divine/MessageComposer.tsx` |

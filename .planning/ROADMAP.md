@@ -85,10 +85,11 @@ Plans:
 ---
 
 ### Phase 4: Follow-up Messaging
-**Status:** Planned
+**Status:** Completed
 **Requirements:** REQ-004, REQ-005
 **Depends on:** Phase 2, Phase 3
 **Plans:** 5 plans
+**Completed:** 2026-01-27
 
 SMS and Email follow-ups working after calls with dashboard visibility.
 
@@ -111,22 +112,24 @@ SMS and Email follow-ups working after calls with dashboard visibility.
 - Admin can edit and retry failed messages
 
 Plans:
-- [ ] 04-01-PLAN.md - Schema Enhancement & Business Hours Utility
-- [ ] 04-02-PLAN.md - Scheduled Messages & Reminders
-- [ ] 04-03-PLAN.md - Enhanced Post-Call Triggering & Nurture Sequences
-- [ ] 04-04-PLAN.md - Dashboard Messaging View (Real-time WebSocket)
-- [ ] 04-05-PLAN.md - Dashboard Manual Compose & Edit Retry
+- [x] 04-01-PLAN.md - Schema Enhancement & Business Hours Utility
+- [x] 04-02-PLAN.md - Scheduled Messages & Reminders
+- [x] 04-03-PLAN.md - Enhanced Post-Call Triggering & Nurture Sequences
+- [x] 04-04-PLAN.md - Dashboard Messaging View (Real-time WebSocket)
+- [x] 04-05-PLAN.md - Dashboard Manual Compose & Edit Retry
 
 ---
 
 ### Phase 5: CRM Synchronization
-**Status:** Not Started
+**Status:** Planned
 **Requirements:** REQ-006
 **Depends on:** Phase 1, Phase 3
+**Plans:** 4 plans
 
-Leads created and updated in Zoho CRM.
+Leads created and updated in Zoho CRM with database-backed OAuth tokens.
 
 **Goals:**
+- Database-backed OAuth token persistence (fixes blocker)
 - Verify Zoho CRM OAuth flow
 - Test lead creation for new callers
 - Test lead update for existing customers
@@ -134,9 +137,17 @@ Leads created and updated in Zoho CRM.
 - Test error handling for CRM failures
 
 **Deliverables:**
+- OAuth tokens persist across server restarts
 - Leads auto-created in Zoho CRM
-- Lead data includes call summary and intent
+- Lead data includes call summary, intent, and appointment details
 - Graceful degradation when CRM unavailable
+- Slack alerts on CRM sync failures
+
+Plans:
+- [ ] 05-01-PLAN.md - OAuth Token Infrastructure (database schema + OAuthTokenService)
+- [ ] 05-02-PLAN.md - Zoho Services Integration (update CRM + Calendar services)
+- [ ] 05-03-PLAN.md - Enhanced CRM Sync (appointment data + error alerting)
+- [ ] 05-04-PLAN.md - End-to-End CRM Test Script
 
 ---
 

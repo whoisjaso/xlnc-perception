@@ -88,6 +88,15 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 - All messages include booking link and portal link
 - **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-03-SUMMARY.md`
 
+### 2026-01-27 - Phase 4 Plan 04 Execution
+- Added GET /divine/queue/scheduled and GET /divine/queue/dead-letter API endpoints
+- Created useSocketMessages WebSocket hook for real-time queue event streaming
+- Enhanced MessageQueueViewer with WebSocket connection status and live event feed
+- Added 6 status tabs (All/Pending/Sent/Failed/Dead Letter/Scheduled)
+- Added prominent failed/dead letter alert banner
+- Added scheduled messages view for next 48 hours
+- **SUMMARY:** `.planning/phases/04-follow-up-messaging/04-04-SUMMARY.md`
+
 ### 2026-01-27 - Phase 4 Plan 05 Execution
 - Added POST /divine/queue/manual for ad-hoc SMS/email sending
 - Added POST /divine/queue/retry/:messageId/edit for edit-before-retry
@@ -129,6 +138,9 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 - **Nurture sequences for non-bookers with Day 1 and Day 4 follow-ups (Phase 4 Plan 3)**
 - **Booking detection and intent-based routing in post-call processor (Phase 4 Plan 3)**
 - **Immediate 24/7 confirmation SMS for bookings (Phase 4 Plan 3)**
+- **Real-time WebSocket dashboard with live message queue updates (Phase 4 Plan 4)**
+- **Status tabs and scheduled message view in dashboard (Phase 4 Plan 4)**
+- **Prominent failed/dead letter alert banner (Phase 4 Plan 4)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -169,6 +181,9 @@ Progress: [#########-] 75% (Phases 1-4 complete)
 | 04-03 | Booking detection uses entities + summary phrases | Multiple sources for reliable detection |
 | 04-03 | Confirmation SMS immediate 24/7 | Per CONTEXT.md - confirmations always send regardless of hours |
 | 04-03 | Nurture pushed to business hours | Per CONTEXT.md - marketing/nurture only during business hours |
+| 04-04 | WebSocket stats preferred over polled stats | Real-time data more current when socket connected |
+| 04-04 | Dead letter uses red-700 and Skull icon | Visual distinction from regular failed messages |
+| 04-04 | Full message body in expanded view | Complete visibility without truncation |
 | 04-05 | Manual messages use messageType 'manual' | Distinguishes admin-sent from automated messages |
 | 04-05 | Edit-retry preserves originalBody in metadata | Audit trail for edited messages |
 | 04-05 | Channel/recipient locked when editing | Only content (body/subject) should change on retry |

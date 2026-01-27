@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 import env from '../../config/env';
+import { oauthTokenService } from './oauth-token.service';
 
 export interface CalendarEvent {
   id: string;
@@ -25,16 +26,16 @@ export interface ZohoCalendarCredentials {
 }
 
 export class ZohoCalendarService {
-  private accessToken: string | null = null;
-  private tokenExpiry: Date | null = null;
   private readonly baseUrl = 'https://calendar.zoho.com/api/v1';
 
+  private readonly serviceClientId: string; // For multi-tenant token lookup
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly refreshToken: string;
   private readonly calendarId: string;
 
-  constructor(credentials?: ZohoCalendarCredentials) {
+  constructor(credentials?: ZohoCalendarCredentials, clientId: string = 'default') {
+    this.serviceClientId = clientId;
     // Use provided credentials, fall back to env vars
     this.clientId = credentials?.clientId || env.ZOHO_CLIENT_ID || env.ZOHO_CALENDAR_CLIENT_ID || '';
     this.clientSecret = credentials?.clientSecret || env.ZOHO_CLIENT_SECRET || env.ZOHO_CALENDAR_CLIENT_SECRET || '';
@@ -50,13 +51,13 @@ export class ZohoCalendarService {
     zoho_client_secret?: string | null;
     zoho_refresh_token?: string | null;
     zoho_calendar_id?: string | null;
-  }): ZohoCalendarService {
+  }, clientId: string = 'default'): ZohoCalendarService {
     return new ZohoCalendarService({
       clientId: clientConfig.zoho_client_id,
       clientSecret: clientConfig.zoho_client_secret,
       refreshToken: clientConfig.zoho_refresh_token,
       calendarId: clientConfig.zoho_calendar_id,
-    });
+    }, clientId);
   }
 
   isConfigured(): boolean {
@@ -64,38 +65,12 @@ export class ZohoCalendarService {
   }
 
   async getAccessToken(): Promise<string> {
-    if (this.accessToken && this.tokenExpiry) {
-      const bufferTime = 5 * 60 * 1000;
-      if (this.tokenExpiry.getTime() - bufferTime > Date.now()) {
-        return this.accessToken;
-      }
-    }
-
-    logger.debug('Refreshing Zoho Calendar access token');
-
-    const response = await fetch('https://accounts.zoho.com/oauth/v2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        refresh_token: this.refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error({ status: response.status, error: errorText }, 'Failed to refresh Zoho Calendar access token');
-      throw new Error(`Failed to refresh Zoho Calendar access token: ${response.status}`);
-    }
-
-    const data = (await response.json()) as { access_token: string; expires_in: number };
-
-    this.accessToken = data.access_token;
-    this.tokenExpiry = new Date(Date.now() + data.expires_in * 1000);
-
-    return this.accessToken!;
+    // Use OAuthTokenService for database-backed tokens
+    return oauthTokenService.getAccessToken(
+      this.serviceClientId,
+      'zoho_calendar',
+      { clientId: this.clientId, clientSecret: this.clientSecret }
+    );
   }
 
   /**

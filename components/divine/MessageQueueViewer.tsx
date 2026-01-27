@@ -9,6 +9,8 @@ import {
   Loader,
   Clock,
   AlertTriangle,
+  AlertCircle,
+  Calendar,
   CheckCircle,
   XCircle,
   RotateCcw,
@@ -16,18 +18,23 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
-  Edit
+  Edit,
+  Skull
 } from 'lucide-react';
 import { divineApi, QueueMessage, QueueStats, ClientConfig } from '../../src/services/divine';
 import { useSocketMessages } from '../../src/hooks/useSocketMessages';
 import { MessageComposer } from './index';
 
+type TabId = 'all' | 'pending' | 'sent' | 'failed' | 'dead_letter' | 'scheduled';
+
 const MessageQueueViewer: React.FC = () => {
   const [stats, setStats] = useState<QueueStats | null>(null);
   const [messages, setMessages] = useState<QueueMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState<QueueMessage[]>([]);
+  const [deadLetterMessages, setDeadLetterMessages] = useState<QueueMessage[]>([]);
+  const [scheduledMessages, setScheduledMessages] = useState<QueueMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'failed'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'sent' | 'failed' | 'dead_letter' | 'scheduled'>('all');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [retrying, setRetrying] = useState<Set<string>>(new Set());
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -43,14 +50,18 @@ const MessageQueueViewer: React.FC = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [statsData, messagesData, failedData] = await Promise.all([
+      const [statsData, messagesData, failedData, deadLetterData, scheduledData] = await Promise.all([
         divineApi.getQueueStats(),
         divineApi.getQueueMessages({ limit: 50 }),
         divineApi.getFailedMessages(),
+        divineApi.getDeadLetterMessages(),
+        divineApi.getScheduledMessages({ hours: 48 }),
       ]);
       setStats(statsData.stats);
       setMessages(messagesData.messages);
       setFailedMessages(failedData.messages);
+      setDeadLetterMessages(deadLetterData.messages || []);
+      setScheduledMessages(scheduledData.messages || []);
     } catch (error) {
       console.error('Failed to load queue data:', error);
     } finally {
@@ -97,6 +108,7 @@ const MessageQueueViewer: React.FC = () => {
       case 'pending': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
       case 'processing': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
       case 'failed': return 'text-red-500 bg-red-500/10 border-red-500/20';
+      case 'dead_letter': return 'text-red-700 bg-red-700/10 border-red-700/20';
       case 'cancelled': return 'text-gray-500 bg-gray-500/10 border-gray-500/20';
       default: return 'text-gray-500 bg-gray-500/10 border-gray-500/20';
     }
@@ -108,11 +120,34 @@ const MessageQueueViewer: React.FC = () => {
       case 'pending': return <Clock size={12} />;
       case 'processing': return <Loader size={12} className="animate-spin" />;
       case 'failed': return <XCircle size={12} />;
+      case 'dead_letter': return <Skull size={12} />;
       default: return <Clock size={12} />;
     }
   };
 
-  const displayMessages = activeTab === 'failed' ? failedMessages : messages;
+  const getDisplayMessages = (): QueueMessage[] => {
+    switch (activeTab) {
+      case 'failed': return failedMessages;
+      case 'dead_letter': return deadLetterMessages;
+      case 'scheduled': return scheduledMessages;
+      case 'pending': return messages.filter(m => m.status === 'pending');
+      case 'sent': return messages.filter(m => m.status === 'sent');
+      default: return messages;
+    }
+  };
+
+  const displayMessages = getDisplayMessages();
+
+  const tabs = [
+    { id: 'all' as TabId, label: 'All', count: messages.length },
+    { id: 'pending' as TabId, label: 'Pending', count: displayStats?.pending || 0 },
+    { id: 'sent' as TabId, label: 'Sent', count: displayStats?.sent || 0 },
+    { id: 'failed' as TabId, label: 'Failed', count: failedMessages.length, color: 'red' },
+    { id: 'dead_letter' as TabId, label: 'Dead Letter', count: deadLetterMessages.length, color: 'red' },
+    { id: 'scheduled' as TabId, label: 'Scheduled', count: scheduledMessages.length },
+  ];
+
+  const attentionCount = failedMessages.length + deadLetterMessages.length;
 
   return (
     <div className="bg-[#0A0A0A] border border-white/5 p-6">
@@ -152,9 +187,32 @@ const MessageQueueViewer: React.FC = () => {
         </div>
       </div>
 
+      {/* Failed/Dead Letter Alert Banner */}
+      {attentionCount > 0 && (
+        <div className="bg-red-500/10 border border-red-500/30 p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={20} className="text-red-500" />
+            <div>
+              <div className="text-sm font-bold text-red-500">
+                {attentionCount} Message(s) Need Attention
+              </div>
+              <div className="text-[10px] text-red-400">
+                {failedMessages.length} failed, {deadLetterMessages.length} in dead letter queue
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('failed')}
+            className="text-[10px] font-bold uppercase px-3 py-1.5 border border-red-500/30 text-red-500 hover:bg-red-500/10"
+          >
+            View Failed
+          </button>
+        </div>
+      )}
+
       {/* Stats */}
       {displayStats && (
-        <div className="grid grid-cols-4 gap-2 mb-6">
+        <div className="grid grid-cols-5 gap-2 mb-6">
           <div className="bg-white/5 p-3 text-center">
             <div className="text-xl font-bold text-yellow-500">{displayStats.pending}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Pending</div>
@@ -171,34 +229,69 @@ const MessageQueueViewer: React.FC = () => {
             <div className="text-xl font-bold text-red-500">{displayStats.failed}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Failed</div>
           </div>
+          <div className="bg-white/5 p-3 text-center">
+            <div className="text-xl font-bold text-red-700">{(displayStats as any).deadLetter || deadLetterMessages.length}</div>
+            <div className="text-[9px] text-gray-500 uppercase tracking-wider">Dead Letter</div>
+          </div>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider border transition-all ${
-            activeTab === 'all'
-              ? 'border-xlnc-gold bg-xlnc-gold/10 text-xlnc-gold'
-              : 'border-white/10 text-gray-500 hover:text-white'
-          }`}
-        >
-          All Messages ({messages.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('failed')}
-          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider border transition-all ${
-            activeTab === 'failed'
-              ? 'border-red-500 bg-red-500/10 text-red-500'
-              : 'border-white/10 text-gray-500 hover:text-white'
-          }`}
-        >
-          Failed ({failedMessages.length})
-        </button>
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider border transition-all ${
+              activeTab === tab.id
+                ? tab.color === 'red'
+                  ? 'border-red-500 bg-red-500/10 text-red-500'
+                  : 'border-xlnc-gold bg-xlnc-gold/10 text-xlnc-gold'
+                : 'border-white/10 text-gray-500 hover:text-white'
+            }`}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
       </div>
 
-      {/* Messages List */}
+      {/* Scheduled Messages View */}
+      {activeTab === 'scheduled' ? (
+        <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar">
+          <div className="text-[10px] text-gray-500 uppercase mb-2 flex items-center gap-2">
+            <Calendar size={12} />
+            Scheduled for next 48 hours
+          </div>
+          {scheduledMessages.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 text-sm">No scheduled messages</div>
+          ) : (
+            scheduledMessages.map(message => (
+              <div key={message.id} className="bg-black/20 p-3 border border-white/5">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2">
+                    {message.channel === 'sms' ? (
+                      <MessageSquare size={12} className="text-blue-500" />
+                    ) : (
+                      <Mail size={12} className="text-purple-500" />
+                    )}
+                    <span className="text-[10px] text-gray-400">{message.channel.toUpperCase()}</span>
+                    <span className="text-[10px] text-gray-600">|</span>
+                    <span className="text-[10px] text-gray-400 font-mono">{message.recipient}</span>
+                  </div>
+                  <div className="text-[10px] text-xlnc-gold">
+                    {new Date(message.scheduledFor).toLocaleString()}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-300 mt-2 truncate">{message.body}</div>
+                {message.subject && (
+                  <div className="text-[10px] text-gray-500 mt-1">Subject: {message.subject}</div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+      /* Messages List */
       <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar">
         {isLoading && messages.length === 0 ? (
           <div className="flex items-center justify-center py-8">
@@ -235,7 +328,7 @@ const MessageQueueViewer: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <span className={`flex items-center gap-1 text-[9px] font-bold uppercase px-2 py-1 border ${getStatusColor(message.status)}`}>
                       {getStatusIcon(message.status)}
-                      {message.status}
+                      {message.status === 'dead_letter' ? 'Dead Letter' : message.status}
                     </span>
                     {expandedMessage === message.id ? (
                       <ChevronUp size={14} className="text-gray-500" />
@@ -257,8 +350,8 @@ const MessageQueueViewer: React.FC = () => {
                   )}
                   <div>
                     <div className="text-[9px] text-gray-500 uppercase mb-1">Body</div>
-                    <div className="text-sm text-gray-400 bg-black/50 p-2 max-h-24 overflow-y-auto">
-                      {message.body.substring(0, 200)}{message.body.length > 200 ? '...' : ''}
+                    <div className="text-sm text-gray-400 bg-black/50 p-2 max-h-24 overflow-y-auto whitespace-pre-wrap">
+                      {message.body}
                     </div>
                   </div>
                   {message.lastError && (
@@ -319,6 +412,7 @@ const MessageQueueViewer: React.FC = () => {
           ))
         )}
       </div>
+      )}
 
       {/* Real-time Event Feed */}
       {recentEvents.length > 0 && (

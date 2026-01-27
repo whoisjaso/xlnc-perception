@@ -22,7 +22,7 @@ import {
   ErrorMonitorPanel,
   PRISMAnalytics
 } from '../components/divine';
-import { divineApi } from '../src/services/divine';
+import { divineApi, ErrorStats } from '../src/services/divine';
 
 type DashboardTab = 'overview' | 'queue' | 'errors' | 'analytics' | 'clients';
 
@@ -41,6 +41,7 @@ const DivineDashboard: React.FC = () => {
   const [quickStats, setQuickStats] = useState<QuickStat[]>([]);
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorData, setErrorData] = useState<{ stats: ErrorStats } | null>(null);
 
   const loadDashboardData = async () => {
     try {
@@ -85,6 +86,7 @@ const DivineDashboard: React.FC = () => {
       ];
 
       setQuickStats(stats);
+      setErrorData(errorData);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -180,20 +182,28 @@ const DivineDashboard: React.FC = () => {
               </div>
               <div className="grid grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-white/5">
-                  <div className="text-2xl font-bold text-red-500">0</div>
+                  <div className="text-2xl font-bold text-red-500">
+                    {errorData?.stats?.bySeverity?.critical || 0}
+                  </div>
                   <div className="text-[9px] text-gray-500 uppercase mt-1">Critical</div>
                 </div>
                 <div className="text-center p-4 bg-white/5">
-                  <div className="text-2xl font-bold text-orange-500">0</div>
+                  <div className="text-2xl font-bold text-orange-500">
+                    {errorData?.stats?.bySeverity?.error || 0}
+                  </div>
                   <div className="text-[9px] text-gray-500 uppercase mt-1">Errors</div>
                 </div>
                 <div className="text-center p-4 bg-white/5">
-                  <div className="text-2xl font-bold text-yellow-500">0</div>
+                  <div className="text-2xl font-bold text-yellow-500">
+                    {errorData?.stats?.bySeverity?.warning || 0}
+                  </div>
                   <div className="text-[9px] text-gray-500 uppercase mt-1">Warnings</div>
                 </div>
                 <div className="text-center p-4 bg-white/5">
-                  <div className="text-2xl font-bold text-emerald-500">0</div>
-                  <div className="text-[9px] text-gray-500 uppercase mt-1">Resolved (24h)</div>
+                  <div className="text-2xl font-bold text-emerald-500">
+                    {errorData?.stats?.total || 0}
+                  </div>
+                  <div className="text-[9px] text-gray-500 uppercase mt-1">Total (24h)</div>
                 </div>
               </div>
             </div>

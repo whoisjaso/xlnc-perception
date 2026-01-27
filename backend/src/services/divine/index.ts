@@ -23,6 +23,7 @@ export { nurtureSequenceService, NurtureSequenceService, NurtureContext } from '
 // ============================================
 export { zohoCRMService, ZohoCRMService, ZohoLead, LeadData } from './zoho-crm.service';
 export { zohoCalendarService, ZohoCalendarService, CalendarEvent, TimeSlot } from './zoho-calendar.service';
+export { oauthTokenService, OAuthTokenService } from './oauth-token.service';
 
 // ============================================
 // MONITORING SERVICES

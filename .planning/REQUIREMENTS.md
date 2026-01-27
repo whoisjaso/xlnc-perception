@@ -79,15 +79,15 @@ Send emails after calls with AI-generated content.
 
 ### REQ-006: CRM Sync
 **Priority:** High
-**Status:** Service exists, needs Smart Tax Nation config
+**Status:** Complete (Phase 5)
 
 Create/update leads in Zoho CRM.
 
 **Acceptance Criteria:**
-- [ ] New callers create lead in Zoho CRM
-- [ ] Existing customers updated with call data
-- [ ] Appointment info synced to lead
-- [ ] OAuth token refresh automated
+- [x] New callers create lead in Zoho CRM
+- [x] Existing customers updated with call data
+- [x] Appointment info synced to lead
+- [x] OAuth token refresh automated
 
 ---
 

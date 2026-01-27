@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 import env from '../../config/env';
+import { oauthTokenService } from './oauth-token.service';
 
 export interface LeadData {
   firstName?: string;
@@ -32,16 +33,16 @@ export interface ZohoCRMCredentials {
 }
 
 export class ZohoCRMService {
-  private accessToken: string | null = null;
-  private tokenExpiry: Date | null = null;
   private readonly baseUrl = 'https://www.zohoapis.com/crm/v3';
   private readonly module = 'Leads';
 
+  private readonly serviceClientId: string; // For multi-tenant token lookup
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly refreshToken: string;
 
-  constructor(credentials?: ZohoCRMCredentials) {
+  constructor(credentials?: ZohoCRMCredentials, clientId: string = 'default') {
+    this.serviceClientId = clientId;
     // Use provided credentials, fall back to env vars
     this.clientId = credentials?.clientId || env.ZOHO_CLIENT_ID || env.ZOHO_CRM_CLIENT_ID || '';
     this.clientSecret = credentials?.clientSecret || env.ZOHO_CLIENT_SECRET || env.ZOHO_CRM_CLIENT_SECRET || '';
@@ -55,12 +56,12 @@ export class ZohoCRMService {
     zoho_client_id?: string | null;
     zoho_client_secret?: string | null;
     zoho_refresh_token?: string | null;
-  }): ZohoCRMService {
+  }, clientId: string = 'default'): ZohoCRMService {
     return new ZohoCRMService({
       clientId: clientConfig.zoho_client_id,
       clientSecret: clientConfig.zoho_client_secret,
       refreshToken: clientConfig.zoho_refresh_token,
-    });
+    }, clientId);
   }
 
   isConfigured(): boolean {
@@ -68,40 +69,12 @@ export class ZohoCRMService {
   }
 
   async getAccessToken(): Promise<string> {
-    if (this.accessToken && this.tokenExpiry) {
-      const bufferTime = 5 * 60 * 1000;
-      if (this.tokenExpiry.getTime() - bufferTime > Date.now()) {
-        return this.accessToken;
-      }
-    }
-
-    logger.debug({ clientId: this.clientId }, 'Refreshing Zoho CRM access token');
-
-    const response = await fetch('https://accounts.zoho.com/oauth/v2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        refresh_token: this.refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error({ status: response.status, error: errorText }, 'Failed to refresh Zoho CRM access token');
-      throw new Error(`Failed to refresh Zoho CRM access token: ${response.status}`);
-    }
-
-    const data = (await response.json()) as { access_token: string; expires_in: number };
-
-    this.accessToken = data.access_token;
-    this.tokenExpiry = new Date(Date.now() + data.expires_in * 1000);
-
-    logger.debug('Zoho CRM access token refreshed successfully');
-
-    return this.accessToken!;
+    // Use OAuthTokenService for database-backed tokens
+    return oauthTokenService.getAccessToken(
+      this.serviceClientId,
+      'zoho_crm',
+      { clientId: this.clientId, clientSecret: this.clientSecret }
+    );
   }
 
   async findByPhone(phone: string): Promise<ZohoLead | null> {

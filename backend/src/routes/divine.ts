@@ -13,6 +13,7 @@ import {
   functionDispatcherService,
   clientConfigService,
   queueProcessorService,
+  messageQueueService,
   errorMonitorService,
   conversationService,
   customerService,
@@ -268,6 +269,79 @@ router.post('/queue/retry/:messageId', authenticateToken, requireAdmin, async (r
 });
 
 /**
+ * POST /divine/queue/retry/:messageId/edit
+ * Retry a failed message with edited content
+ */
+router.post('/queue/retry/:messageId/edit', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { messageId } = req.params;
+    const { body, subject } = req.body;
+
+    if (!body) {
+      return res.status(400).json(createErrorResponse('Body is required', 400));
+    }
+
+    const success = await queueProcessorService.retryMessageWithEdit(messageId, {
+      body,
+      subject,
+      editedBy: req.user?.email
+    });
+
+    if (!success) {
+      return res.status(404).json(createErrorResponse('Message not found or not retryable', 404));
+    }
+
+    res.json(createTheatricalResponse({ retried: true, edited: true }));
+  } catch (error) {
+    logger.error({ error }, 'Failed to retry message with edit');
+    res.status(500).json(createErrorResponse('Failed to retry message', 500));
+  }
+});
+
+/**
+ * POST /divine/queue/manual
+ * Send a manual ad-hoc message
+ */
+router.post('/queue/manual', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { clientId, channel, recipient, subject, body, scheduledFor } = req.body;
+
+    if (!clientId || !channel || !recipient || !body) {
+      return res.status(400).json(createErrorResponse('Missing required fields: clientId, channel, recipient, body', 400));
+    }
+
+    if (channel !== 'sms' && channel !== 'email') {
+      return res.status(400).json(createErrorResponse('Channel must be sms or email', 400));
+    }
+
+    let message;
+    if (channel === 'sms') {
+      message = await messageQueueService.enqueueSMS(clientId, recipient, body, {
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : new Date(),
+        messageType: 'manual',
+        metadata: { sentBy: req.user?.email, manual: true }
+      });
+    } else {
+      if (!subject) {
+        return res.status(400).json(createErrorResponse('Subject required for email', 400));
+      }
+      message = await messageQueueService.enqueueEmail(clientId, recipient, subject, body, {
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : new Date(),
+        messageType: 'manual',
+        metadata: { sentBy: req.user?.email, manual: true }
+      });
+    }
+
+    logger.info({ messageId: message.id, channel, recipient: recipient.slice(-4) }, 'Manual message queued');
+
+    res.status(201).json(createTheatricalResponse({ message, queued: true }));
+  } catch (error) {
+    logger.error({ error }, 'Failed to queue manual message');
+    res.status(500).json(createErrorResponse('Failed to queue message', 500));
+  }
+});
+
+/**
  * DELETE /divine/queue/:messageId
  * Cancel a pending message
  */
@@ -280,6 +354,37 @@ router.delete('/queue/:messageId', authenticateToken, requireAdmin, async (req: 
     res.json(createTheatricalResponse({ cancelled: true }));
   } catch (error) {
     res.status(500).json(createErrorResponse('Failed to cancel message', 500));
+  }
+});
+
+/**
+ * GET /divine/queue/scheduled
+ * Get scheduled messages for the next N hours (default 48)
+ */
+router.get('/queue/scheduled', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const { clientId, hours = '48' } = req.query;
+    const messages = await messageQueueService.getScheduledMessages(
+      parseInt(hours as string),
+      clientId as string | undefined
+    );
+    res.json(createTheatricalResponse({ messages, total: messages.length }));
+  } catch (error) {
+    res.status(500).json(createErrorResponse('Failed to get scheduled messages', 500));
+  }
+});
+
+/**
+ * GET /divine/queue/dead-letter
+ * Get dead letter messages
+ */
+router.get('/queue/dead-letter', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { clientId } = req.query;
+    const messages = await queueProcessorService.getDeadLetterMessages(clientId as string | undefined);
+    res.json(createTheatricalResponse({ messages, total: messages.length }));
+  } catch (error) {
+    res.status(500).json(createErrorResponse('Failed to get dead letter messages', 500));
   }
 });
 

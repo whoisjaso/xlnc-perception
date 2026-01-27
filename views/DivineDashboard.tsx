@@ -22,7 +22,7 @@ import {
   ErrorMonitorPanel,
   PRISMAnalytics
 } from '../components/divine';
-import { divineApi, ErrorStats } from '../src/services/divine';
+import { divineApi, ErrorStats, Conversation } from '../src/services/divine';
 
 type DashboardTab = 'overview' | 'queue' | 'errors' | 'analytics' | 'clients';
 
@@ -39,17 +39,18 @@ const DivineDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [quickStats, setQuickStats] = useState<QuickStat[]>([]);
-  const [recentCalls, setRecentCalls] = useState<any[]>([]);
+  const [recentCalls, setRecentCalls] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorData, setErrorData] = useState<{ stats: ErrorStats } | null>(null);
 
   const loadDashboardData = async () => {
     try {
       setIsRefreshing(true);
-      const [statusData, queueData, errorData] = await Promise.all([
+      const [statusData, queueData, errorData, conversationsData] = await Promise.all([
         divineApi.getSystemStatus(),
         divineApi.getQueueStats(),
-        divineApi.getErrorStats(24)
+        divineApi.getErrorStats(24),
+        divineApi.getRecentConversations(5).catch(() => ({ conversations: [], total: 0 }))
       ]);
 
       // Build quick stats from the data
@@ -87,6 +88,7 @@ const DivineDashboard: React.FC = () => {
 
       setQuickStats(stats);
       setErrorData(errorData);
+      setRecentCalls(conversationsData.conversations);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -156,12 +158,39 @@ const DivineDashboard: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Placeholder for recent calls - would be populated from conversation service */}
-                  <div className="text-center py-8 text-gray-600">
-                    <Phone size={32} className="mx-auto mb-3 opacity-30" />
-                    <div className="text-sm">No recent calls</div>
-                    <div className="text-[10px] mt-1">Calls will appear here as they are processed</div>
-                  </div>
+                  {recentCalls.length === 0 ? (
+                    <div className="text-center py-8 text-gray-600">
+                      <Phone size={32} className="mx-auto mb-3 opacity-30" />
+                      <div className="text-sm">No recent calls</div>
+                      <div className="text-[10px] mt-1">Calls will appear here as they are processed</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {recentCalls.map((call: Conversation) => (
+                        <div key={call.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-2 rounded-full ${
+                              call.status === 'completed' ? 'bg-emerald-500' :
+                              call.status === 'in_progress' ? 'bg-amber-500 animate-pulse' :
+                              'bg-gray-500'
+                            }`} />
+                            <div>
+                              <div className="text-sm text-white">
+                                {call.intent || 'Unknown Intent'}
+                              </div>
+                              <div className="text-[10px] text-gray-500">
+                                {call.durationMs ? `${Math.round(call.durationMs / 1000)}s` : 'In Progress'}
+                                {call.sentiment && ` • ${call.sentiment}`}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-[10px] text-gray-500">
+                            {new Date(call.createdAt).toLocaleTimeString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -20,9 +20,10 @@ import {
   DivineStatusWidget,
   MessageQueueViewer,
   ErrorMonitorPanel,
-  PRISMAnalytics
+  PRISMAnalytics,
+  CallStatusPanel
 } from '../components/divine';
-import { divineApi, ErrorStats, Conversation } from '../src/services/divine';
+import { divineApi, ErrorStats, Conversation, ClientConfig } from '../src/services/divine';
 
 type DashboardTab = 'overview' | 'queue' | 'errors' | 'analytics' | 'clients';
 
@@ -42,15 +43,18 @@ const DivineDashboard: React.FC = () => {
   const [recentCalls, setRecentCalls] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorData, setErrorData] = useState<{ stats: ErrorStats } | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [clients, setClients] = useState<ClientConfig[]>([]);
 
   const loadDashboardData = async () => {
     try {
       setIsRefreshing(true);
-      const [statusData, queueData, errorData, conversationsData] = await Promise.all([
+      const [statusData, queueData, errorData, conversationsData, clientsData] = await Promise.all([
         divineApi.getSystemStatus(),
         divineApi.getQueueStats(),
         divineApi.getErrorStats(24),
-        divineApi.getRecentConversations(5).catch(() => ({ conversations: [], total: 0 }))
+        divineApi.getRecentConversations(5).catch(() => ({ conversations: [], total: 0 })),
+        divineApi.getAllClients().catch(() => ({ clients: [], total: 0 }))
       ]);
 
       // Build quick stats from the data
@@ -89,6 +93,7 @@ const DivineDashboard: React.FC = () => {
       setQuickStats(stats);
       setErrorData(errorData);
       setRecentCalls(conversationsData.conversations);
+      setClients(clientsData.clients);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -283,7 +288,22 @@ const DivineDashboard: React.FC = () => {
             AI-powered voice automation and behavioral intelligence
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Users size={14} className="text-gray-500" />
+            <select
+              value={selectedClientId || ''}
+              onChange={(e) => setSelectedClientId(e.target.value || null)}
+              className="bg-black/50 border border-white/10 px-3 py-2 text-[10px] uppercase tracking-wider text-white focus:border-xlnc-gold/50 outline-none min-w-[160px]"
+            >
+              <option value="">All Clients</option>
+              {clients.map(client => (
+                <option key={client.client_id} value={client.client_id}>
+                  {client.business_name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             onClick={loadDashboardData}
             disabled={isRefreshing}

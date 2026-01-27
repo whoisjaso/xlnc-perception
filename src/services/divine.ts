@@ -48,7 +48,7 @@ export interface QueueMessage {
   recipient: string;
   subject?: string;
   body: string;
-  status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled';
+  status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'dead_letter';
   scheduledFor: string;
   attempts: number;
   maxAttempts: number;
@@ -242,6 +242,39 @@ export const divineApi = {
 
   async cancelMessage(messageId: string): Promise<{ cancelled: boolean }> {
     const response = await api.delete(`/divine/queue/${messageId}`);
+    return response.data.data;
+  },
+
+  async sendManualMessage(params: {
+    clientId: string;
+    channel: 'sms' | 'email';
+    recipient: string;
+    subject?: string;
+    body: string;
+    scheduledFor?: string;
+  }): Promise<{ message: QueueMessage; queued: boolean }> {
+    const response = await api.post('/divine/queue/manual', params);
+    return response.data.data;
+  },
+
+  async retryMessageWithEdit(messageId: string, edits: {
+    body: string;
+    subject?: string;
+  }): Promise<{ retried: boolean; edited: boolean }> {
+    const response = await api.post(`/divine/queue/retry/${messageId}/edit`, edits);
+    return response.data.data;
+  },
+
+  async getDeadLetterMessages(clientId?: string): Promise<{ messages: QueueMessage[]; total: number }> {
+    const response = await api.get('/divine/queue/dead-letter', { params: { clientId } });
+    return response.data.data;
+  },
+
+  async getScheduledMessages(options?: { hours?: number; clientId?: string }): Promise<{ messages: QueueMessage[]; total: number }> {
+    const params: Record<string, string> = {};
+    if (options?.hours) params.hours = options.hours.toString();
+    if (options?.clientId) params.clientId = options.clientId;
+    const response = await api.get('/divine/queue/scheduled', { params });
     return response.data.data;
   },
 

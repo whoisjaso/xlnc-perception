@@ -14,10 +14,13 @@ import {
   RotateCcw,
   Trash2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Plus,
+  Edit
 } from 'lucide-react';
-import { divineApi, QueueMessage, QueueStats } from '../../src/services/divine';
+import { divineApi, QueueMessage, QueueStats, ClientConfig } from '../../src/services/divine';
 import { useSocketMessages } from '../../src/hooks/useSocketMessages';
+import { MessageComposer } from './index';
 
 const MessageQueueViewer: React.FC = () => {
   const [stats, setStats] = useState<QueueStats | null>(null);
@@ -27,6 +30,9 @@ const MessageQueueViewer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'failed'>('all');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [retrying, setRetrying] = useState<Set<string>>(new Set());
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [editingMessage, setEditingMessage] = useState<QueueMessage | null>(null);
+  const [clients, setClients] = useState<ClientConfig[]>([]);
 
   // WebSocket real-time updates
   const { stats: wsStats, recentEvents, isConnected, reconnect } = useSocketMessages();
@@ -54,6 +60,7 @@ const MessageQueueViewer: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    divineApi.getAllClients().then(data => setClients(data.clients)).catch(console.error);
     const interval = setInterval(loadData, 15000); // Refresh every 15 seconds
     return () => clearInterval(interval);
   }, []);
@@ -125,6 +132,16 @@ const MessageQueueViewer: React.FC = () => {
               </button>
             )}
           </div>
+          <button
+            onClick={() => {
+              setEditingMessage(null);
+              setIsComposerOpen(true);
+            }}
+            className="text-[10px] text-xlnc-gold font-bold uppercase tracking-wider border border-xlnc-gold/30 px-4 py-2 hover:bg-xlnc-gold/10 transition-colors flex items-center gap-2"
+          >
+            <Plus size={12} />
+            Compose
+          </button>
           <button
             onClick={loadData}
             disabled={isLoading}
@@ -256,21 +273,34 @@ const MessageQueueViewer: React.FC = () => {
                   </div>
 
                   {/* Actions */}
-                  {(message.status === 'failed' || message.status === 'pending') && (
+                  {(message.status === 'failed' || message.status === 'dead_letter' || message.status === 'pending') && (
                     <div className="flex gap-2 pt-2 border-t border-white/5">
-                      {message.status === 'failed' && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleRetry(message.id); }}
-                          disabled={retrying.has(message.id)}
-                          className="flex items-center gap-1 text-[9px] font-bold uppercase px-3 py-1.5 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 transition-all"
-                        >
-                          {retrying.has(message.id) ? (
-                            <Loader size={10} className="animate-spin" />
-                          ) : (
-                            <RotateCcw size={10} />
-                          )}
-                          Retry
-                        </button>
+                      {(message.status === 'failed' || message.status === 'dead_letter') && (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRetry(message.id); }}
+                            disabled={retrying.has(message.id)}
+                            className="flex items-center gap-1 text-[9px] font-bold uppercase px-3 py-1.5 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 transition-all"
+                          >
+                            {retrying.has(message.id) ? (
+                              <Loader size={10} className="animate-spin" />
+                            ) : (
+                              <RotateCcw size={10} />
+                            )}
+                            Retry
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingMessage(message);
+                              setIsComposerOpen(true);
+                            }}
+                            className="flex items-center gap-1 text-[9px] font-bold uppercase px-3 py-1.5 border border-blue-500/30 text-blue-500 hover:bg-blue-500/10 transition-all"
+                          >
+                            <Edit size={10} />
+                            Edit & Retry
+                          </button>
+                        </>
                       )}
                       {message.status === 'pending' && (
                         <button
@@ -308,6 +338,18 @@ const MessageQueueViewer: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Message Composer Modal */}
+      <MessageComposer
+        isOpen={isComposerOpen}
+        onClose={() => {
+          setIsComposerOpen(false);
+          setEditingMessage(null);
+        }}
+        onSuccess={loadData}
+        editMessage={editingMessage || undefined}
+        clients={clients}
+      />
     </div>
   );
 };

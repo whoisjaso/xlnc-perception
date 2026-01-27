@@ -16,23 +16,34 @@ import {
 } from 'lucide-react';
 import { divineApi, ErrorStats, ErrorLogEntry } from '../../src/services/divine';
 
-const ErrorMonitorPanel: React.FC = () => {
+interface ErrorMonitorPanelProps {
+  clientId?: string;
+}
+
+const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({ clientId }) => {
   const [stats, setStats] = useState<ErrorStats | null>(null);
   const [errors, setErrors] = useState<ErrorLogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedError, setExpandedError] = useState<string | null>(null);
   const [resolving, setResolving] = useState<Set<string>>(new Set());
   const [showResolved, setShowResolved] = useState(false);
+  const [timeRange, setTimeRange] = useState<'1h' | '6h' | '24h' | '7d'>('24h');
 
   const loadData = async () => {
     try {
       setIsLoading(true);
+      const hours = timeRange === '1h' ? 1 : timeRange === '6h' ? 6 : timeRange === '24h' ? 24 : 168;
       const [statsData, errorsData] = await Promise.all([
-        divineApi.getErrorStats(24),
+        divineApi.getErrorStats(hours),
         showResolved ? divineApi.getRecentErrors(50) : divineApi.getUnresolvedErrors(),
       ]);
       setStats(statsData.stats);
-      setErrors(errorsData.errors);
+
+      // Filter by clientId if provided
+      const filteredErrors = clientId
+        ? errorsData.errors.filter((e: ErrorLogEntry) => e.clientId === clientId)
+        : errorsData.errors;
+      setErrors(filteredErrors);
     } catch (error) {
       console.error('Failed to load error data:', error);
     } finally {
@@ -44,7 +55,7 @@ const ErrorMonitorPanel: React.FC = () => {
     loadData();
     const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
-  }, [showResolved]);
+  }, [showResolved, timeRange, clientId]);
 
   const handleResolve = async (errorId: string) => {
     setResolving((prev) => new Set(prev).add(errorId));
@@ -90,13 +101,31 @@ const ErrorMonitorPanel: React.FC = () => {
           <AlertTriangle size={18} className="text-red-500" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Error Monitor</h3>
         </div>
-        <button
-          onClick={loadData}
-          disabled={isLoading}
-          className="text-gray-500 hover:text-white transition-colors p-1"
-        >
-          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Time Range Filter */}
+          <div className="flex border border-white/10">
+            {(['1h', '6h', '24h', '7d'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-3 py-1 text-[9px] font-bold uppercase transition-colors ${
+                  timeRange === range
+                    ? 'bg-xlnc-gold/20 text-xlnc-gold'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={loadData}
+            disabled={isLoading}
+            className="text-gray-500 hover:text-white transition-colors p-1"
+          >
+            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
       {/* Stats Summary */}
@@ -104,7 +133,7 @@ const ErrorMonitorPanel: React.FC = () => {
         <div className="grid grid-cols-4 gap-2 mb-6">
           <div className="bg-white/5 p-3 text-center">
             <div className="text-xl font-bold text-white">{stats.total}</div>
-            <div className="text-[9px] text-gray-500 uppercase tracking-wider">Total (24h)</div>
+            <div className="text-[9px] text-gray-500 uppercase tracking-wider">Total ({timeRange === '7d' ? '7 days' : timeRange})</div>
           </div>
           <div className="bg-white/5 p-3 text-center">
             <div className="text-xl font-bold text-red-500">{stats.bySeverity['critical'] || 0}</div>

@@ -422,6 +422,47 @@ export class QueueProcessorService {
     return true;
   }
 
+  async retryMessageWithEdit(
+    messageId: string,
+    edits: { body: string; subject?: string; editedBy?: string }
+  ): Promise<boolean> {
+    const [message] = await db
+      .select()
+      .from(messageQueue)
+      .where(eq(messageQueue.id, messageId))
+      .limit(1);
+
+    if (!message || (message.status !== 'failed' && message.status !== 'dead_letter')) {
+      return false;
+    }
+
+    // Update message with new content and reset for retry
+    await db
+      .update(messageQueue)
+      .set({
+        body: edits.body,
+        subject: edits.subject || message.subject,
+        status: 'pending',
+        attempts: 0,
+        scheduledFor: new Date(),
+        lastError: null,
+        metadata: {
+          ...message.metadata as object,
+          editedAt: new Date().toISOString(),
+          editedBy: edits.editedBy,
+          originalBody: message.body,
+        }
+      })
+      .where(eq(messageQueue.id, messageId));
+
+    logger.info({ messageId, editedBy: edits.editedBy }, 'Message edited and queued for retry');
+
+    // Trigger immediate processing
+    this.processQueue();
+
+    return true;
+  }
+
   async cancelMessage(messageId: string): Promise<boolean> {
     const [message] = await db
       .select()

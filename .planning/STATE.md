@@ -4,10 +4,10 @@
 
 **Milestone:** v1.0 - Smart Tax Nation Launch
 **Current Phase:** 5 - CRM Synchronization (IN PROGRESS)
-**Plan:** 01 of 03 complete
+**Plan:** 02 of 03 complete
 **Status:** Phase 5 In Progress
 
-Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
+Progress: [###########] 85% (Phases 1-4 complete, Phase 5 Plans 01+03 done)
 
 ## Session History
 
@@ -111,6 +111,15 @@ Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 - **RESOLVED BLOCKER:** Database-backed OAuth tokens now persist across restarts
 - **SUMMARY:** `.planning/phases/05-crm-synchronization/05-01-SUMMARY.md`
 
+### 2026-01-27 - Phase 5 Plan 03 Execution
+- Enhanced CRM sync with dedicated syncToCRM method
+- Appointment time and type now included in CRM lead notes
+- Customer name/email synced to CRM lead firstName/lastName/email fields
+- PRISM behavioral insights added to CRM notes and custom fields
+- CRM sync failures now trigger multi-channel alerts via alertingService
+- Graceful degradation: CRM errors don't block post-call processing
+- **SUMMARY:** `.planning/phases/05-crm-synchronization/05-03-SUMMARY.md`
+
 ## Key Context
 
 **Client:** Smart Tax Nation (Tax consultation business)
@@ -150,6 +159,8 @@ Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 - **Prominent failed/dead letter alert banner (Phase 4 Plan 4)**
 - **Database-backed OAuth tokens with automatic refresh (Phase 5 Plan 1)**
 - **OAuthTokenService for Zoho CRM/Calendar integration (Phase 5 Plan 1)**
+- **Enhanced CRM sync with appointment data and PRISM insights (Phase 5 Plan 3)**
+- **CRM sync failures trigger multi-channel alerts (Phase 5 Plan 3)**
 
 ## What Needs Work
 - End-to-end testing with Retell voice agent
@@ -163,7 +174,7 @@ Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 - ~~Manual message composition and edit-retry from dashboard~~ (Phase 4 Plan 5 complete)
 - ~~Database-backed OAuth tokens~~ (Phase 5 Plan 1 complete)
 - Integration of OAuthTokenService with Zoho services (Phase 5 Plan 2)
-- Lead sync functionality (Phase 5 Plan 3)
+- ~~Lead sync functionality~~ (Phase 5 Plan 3 complete)
 
 ## Accumulated Decisions
 
@@ -202,6 +213,10 @@ Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 | 05-01 | Unique index on (client_id, provider) | Enables upsert pattern for token storage |
 | 05-01 | Fall back to ZOHO_REFRESH_TOKEN env var | Backward compatibility during migration |
 | 05-01 | 5-minute buffer before token expiry | Prevents token expiry during multi-step operations |
+| 05-03 | Extract syncToCRM as dedicated method | Separation of concerns, easier testing, cleaner error handling |
+| 05-03 | Name split on first space for CRM | firstName = first word, lastName = rest - handles most common name formats |
+| 05-03 | Custom fields as Last_Intent, Total_Calls, PRISM_Dominant | Matches common Zoho CRM custom field naming convention |
+| 05-03 | Graceful degradation on CRM errors | CRM is enhancement, not critical path per REQ-006 |
 
 ## Blockers
 
@@ -219,15 +234,15 @@ Progress: [##########] 80% (Phases 1-4 complete, Phase 5 started)
 
 ## Next Actions
 
-1. Continue Phase 5 Plan 02 (Zoho Service Integration)
-2. Continue Phase 5 Plan 03 (Lead Sync)
-3. Test end-to-end booking flow with Retell voice agent
-4. Test nurture sequence scheduling with non-booking calls
+1. Complete Phase 5 Plan 02 (Zoho Service Integration - integrate OAuthTokenService)
+2. Test end-to-end booking flow with Retell voice agent
+3. Test nurture sequence scheduling with non-booking calls
+4. Continue to Phase 6 (Analytics & Reporting) or Phase 7 (Production Hardening)
 
 ## Session Continuity
 
 **Last session:** 2026-01-27
-**Stopped at:** Completed 05-01-PLAN.md (OAuth Token Infrastructure)
+**Stopped at:** Completed 05-03-PLAN.md (Lead Sync Enhancement)
 **Resume file:** None - Continue to Phase 5 Plan 02
 
 ## Important Files

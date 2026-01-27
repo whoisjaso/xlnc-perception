@@ -17,6 +17,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { divineApi, QueueMessage, QueueStats } from '../../src/services/divine';
+import { useSocketMessages } from '../../src/hooks/useSocketMessages';
 
 const MessageQueueViewer: React.FC = () => {
   const [stats, setStats] = useState<QueueStats | null>(null);
@@ -26,6 +27,12 @@ const MessageQueueViewer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'failed'>('all');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [retrying, setRetrying] = useState<Set<string>>(new Set());
+
+  // WebSocket real-time updates
+  const { stats: wsStats, recentEvents, isConnected, reconnect } = useSocketMessages();
+
+  // Merge WebSocket stats with polled stats (prefer real-time)
+  const displayStats = wsStats || stats;
 
   const loadData = async () => {
     try {
@@ -108,32 +115,43 @@ const MessageQueueViewer: React.FC = () => {
           <MessageSquare size={18} className="text-xlnc-gold" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Message Queue</h3>
         </div>
-        <button
-          onClick={loadData}
-          disabled={isLoading}
-          className="text-gray-500 hover:text-white transition-colors p-1"
-        >
-          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-[10px]">
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`} />
+            <span className="text-gray-500">{isConnected ? 'Live' : 'Disconnected'}</span>
+            {!isConnected && (
+              <button onClick={reconnect} className="text-xlnc-gold hover:underline">
+                Reconnect
+              </button>
+            )}
+          </div>
+          <button
+            onClick={loadData}
+            disabled={isLoading}
+            className="text-gray-500 hover:text-white transition-colors p-1"
+          >
+            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
-      {stats && (
+      {displayStats && (
         <div className="grid grid-cols-4 gap-2 mb-6">
           <div className="bg-white/5 p-3 text-center">
-            <div className="text-xl font-bold text-yellow-500">{stats.pending}</div>
+            <div className="text-xl font-bold text-yellow-500">{displayStats.pending}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Pending</div>
           </div>
           <div className="bg-white/5 p-3 text-center">
-            <div className="text-xl font-bold text-blue-500">{stats.processing}</div>
+            <div className="text-xl font-bold text-blue-500">{displayStats.processing}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Processing</div>
           </div>
           <div className="bg-white/5 p-3 text-center">
-            <div className="text-xl font-bold text-emerald-500">{stats.sent}</div>
+            <div className="text-xl font-bold text-emerald-500">{displayStats.sent}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Sent</div>
           </div>
           <div className="bg-white/5 p-3 text-center">
-            <div className="text-xl font-bold text-red-500">{stats.failed}</div>
+            <div className="text-xl font-bold text-red-500">{displayStats.failed}</div>
             <div className="text-[9px] text-gray-500 uppercase tracking-wider">Failed</div>
           </div>
         </div>
@@ -271,6 +289,25 @@ const MessageQueueViewer: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Real-time Event Feed */}
+      {recentEvents.length > 0 && (
+        <div className="bg-black/30 border border-white/5 p-3 mt-4">
+          <div className="text-[9px] text-gray-500 uppercase mb-2">Recent Activity (Live)</div>
+          <div className="space-y-1 max-h-32 overflow-y-auto">
+            {recentEvents.slice(0, 10).map((event, idx) => (
+              <div key={idx} className="text-[10px] text-gray-400 flex items-center gap-2">
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  event.status === 'sent' ? 'bg-emerald-500' :
+                  event.status === 'failed' ? 'bg-red-500' :
+                  'bg-yellow-500'
+                }`} />
+                <span className="truncate">{event.channel} to ...{event.recipient.slice(-4)} - {event.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

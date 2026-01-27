@@ -340,6 +340,11 @@ export const divineApi = {
     return response.data.data;
   },
 
+  async getRecentConversations(limit?: number): Promise<{ conversations: Conversation[]; total: number }> {
+    const response = await api.get('/divine/conversations/recent', { params: { limit } });
+    return response.data.data;
+  },
+
   // Analysis
   async analyzeTranscript(transcript: string): Promise<AnalysisResult> {
     const response = await api.post('/divine/analyze/transcript', { transcript });

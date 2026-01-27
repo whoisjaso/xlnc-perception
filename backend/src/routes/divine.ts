@@ -3,9 +3,12 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { desc } from 'drizzle-orm';
 import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth.middleware';
 import { createTheatricalResponse, createErrorResponse } from '../utils/theatrical';
 import { logger } from '../utils/logger';
+import { db } from '../config/database';
+import { conversations as conversationsTable } from '../db/schema/conversations';
 import {
   getDivineServicesStatus,
   getDivineSystemStatus,
@@ -557,6 +560,26 @@ router.post('/errors/:errorId/acknowledge', authenticateToken, async (req: AuthR
 // ============================================
 // CONVERSATION & ANALYTICS ENDPOINTS
 // ============================================
+
+/**
+ * GET /divine/conversations/recent
+ * Get recent conversations across all clients (admin)
+ */
+router.get('/conversations/recent', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { limit = '10' } = req.query;
+    // Use SQL to get recent across all clients
+    const conversations = await db
+      .select()
+      .from(conversationsTable)
+      .orderBy(desc(conversationsTable.createdAt))
+      .limit(parseInt(limit as string));
+    res.json(createTheatricalResponse({ conversations, total: conversations.length }));
+  } catch (error) {
+    logger.error({ error }, 'Failed to get recent conversations');
+    res.status(500).json(createErrorResponse('Failed to get recent conversations', 500));
+  }
+});
 
 /**
  * GET /divine/conversations

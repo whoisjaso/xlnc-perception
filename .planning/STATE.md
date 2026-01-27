@@ -137,6 +137,13 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 - **NOTE:** Database connectivity required for full test execution
 - **SUMMARY:** `.planning/phases/05-crm-synchronization/05-04-SUMMARY.md`
 
+### 2026-01-27 - Phase 6 Plan 01 Execution
+- Added GET /divine/conversations/recent endpoint for cross-client recent calls
+- Added getRecentConversations frontend API method
+- Wired error summary to display real severity counts from getErrorStats
+- Wired recent call activity to display real conversation data with status/intent/duration
+- **SUMMARY:** `.planning/phases/06-admin-dashboard-monitoring/06-01-SUMMARY.md`
+
 ### 2026-01-27 - Phase 6 Plan 02 Execution
 - Added WebSocket call:started and call:ended emissions to webhookHandlerService
 - Created useCallSocket React hook for real-time call event consumption
@@ -188,6 +195,7 @@ Progress: [##############--] 87% (Phases 1-5 complete, Phase 6: 2/3 plans)
 - **Enhanced CRM sync with appointment data and PRISM insights (Phase 5 Plan 3)**
 - **CRM sync failures trigger multi-channel alerts (Phase 5 Plan 3)**
 - **CRM integration test script for end-to-end verification (Phase 5 Plan 4)**
+- **Dashboard overview wired to real error stats and recent conversation data (Phase 6 Plan 1)**
 - **Real-time call status via WebSocket with useCallSocket hook and CallStatusPanel (Phase 6 Plan 2)**
 
 ## What Needs Work

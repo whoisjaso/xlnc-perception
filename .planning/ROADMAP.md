@@ -180,10 +180,40 @@ Plans:
 
 ---
 
+### Phase 6.1: Client Onboarding & OAuth Hardening (INSERTED)
+**Status:** Not Started
+**Requirements:** REQ-009 (extended)
+**Depends on:** Phase 5, Phase 6
+**Plans:** 4 plans
+
+Production-ready client onboarding flow with OAuth recovery and admin setup tools.
+
+**Goals:**
+- OAuth recovery: detect expired/invalid refresh tokens, alert admins, provide re-auth flow
+- Per-client OAuth initiation: admin can start OAuth flow for any client's CRM
+- Guided client setup: create config → authorize CRM → verify connection → activate
+- Admin setup tools: admins (Jason + Mark) can provision clients using admin keys
+- CRM-agnostic onboarding: abstraction layer supporting Zoho now, extensible to Salesforce/HubSpot
+
+**Deliverables:**
+- Per-client OAuth authorization endpoint with callback
+- OAuth token health monitoring and alerting
+- Admin client provisioning workflow
+- Setup validation/checklist endpoint
+- Recovery flow for expired refresh tokens
+
+Plans:
+- [ ] 06.1-01-PLAN.md - OAuth Authorization Code Flow (initiate + callback + state)
+- [ ] 06.1-02-PLAN.md - Token Health Monitoring & Alerting
+- [ ] 06.1-03-PLAN.md - Onboarding Setup Checklist Service & API
+- [ ] 06.1-04-PLAN.md - Token Recovery & Health Dashboard Endpoints
+
+---
+
 ### Phase 7: End-to-End Testing & Polish
 **Status:** Not Started
 **Requirements:** All
-**Depends on:** Phases 1-6
+**Depends on:** Phases 1-6.1
 
 Full system validation before go-live.
 

@@ -174,7 +174,7 @@ export class ErrorMonitorService {
     await db.insert(errorLogs).values({ ...entry, notified: true });
 
     // Send immediate Slack alert
-    await slackService.sendAlert({
+    await slackService.send({
       severity: 'critical',
       title: `CRITICAL: ${entry.service} - ${entry.operation}`,
       message: entry.errorMessage,
@@ -236,7 +236,7 @@ export class ErrorMonitorService {
       .map(([service, count]) => `${service}: ${count}`)
       .join(', ');
 
-    await slackService.sendAlert({
+    await slackService.send({
       severity: 'warning',
       title: `Error Summary (Last ${Math.round(this.BUFFER_FLUSH_INTERVAL_MS / 60000)} mins)`,
       message: `${entries.length} errors logged`,

@@ -27,7 +27,11 @@ import { MessageComposer } from './index';
 
 type TabId = 'all' | 'pending' | 'sent' | 'failed' | 'dead_letter' | 'scheduled';
 
-const MessageQueueViewer: React.FC = () => {
+interface MessageQueueViewerProps {
+  clientId?: string;
+}
+
+const MessageQueueViewer: React.FC<MessageQueueViewerProps> = ({ clientId }) => {
   const [stats, setStats] = useState<QueueStats | null>(null);
   const [messages, setMessages] = useState<QueueMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState<QueueMessage[]>([]);
@@ -74,7 +78,7 @@ const MessageQueueViewer: React.FC = () => {
     divineApi.getAllClients().then(data => setClients(data.clients)).catch(console.error);
     const interval = setInterval(loadData, 15000); // Refresh every 15 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [clientId]);
 
   const handleRetry = async (messageId: string) => {
     setRetrying((prev) => new Set(prev).add(messageId));
@@ -125,14 +129,17 @@ const MessageQueueViewer: React.FC = () => {
     }
   };
 
+  const filterByClient = (msgs: QueueMessage[]) =>
+    clientId ? msgs.filter(m => m.clientId === clientId) : msgs;
+
   const getDisplayMessages = (): QueueMessage[] => {
     switch (activeTab) {
-      case 'failed': return failedMessages;
-      case 'dead_letter': return deadLetterMessages;
-      case 'scheduled': return scheduledMessages;
-      case 'pending': return messages.filter(m => m.status === 'pending');
-      case 'sent': return messages.filter(m => m.status === 'sent');
-      default: return messages;
+      case 'failed': return filterByClient(failedMessages);
+      case 'dead_letter': return filterByClient(deadLetterMessages);
+      case 'scheduled': return filterByClient(scheduledMessages);
+      case 'pending': return filterByClient(messages.filter(m => m.status === 'pending'));
+      case 'sent': return filterByClient(messages.filter(m => m.status === 'sent'));
+      default: return filterByClient(messages);
     }
   };
 

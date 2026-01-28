@@ -153,10 +153,11 @@ Plans:
 ---
 
 ### Phase 6: Admin Dashboard & Monitoring
-**Status:** Planning Complete
+**Status:** Completed
 **Requirements:** REQ-007, REQ-008
 **Depends on:** Phase 3, Phase 4
 **Plans:** 3 plans
+**Completed:** 2026-01-27
 
 Admin visibility for debugging and monitoring.
 
@@ -173,9 +174,9 @@ Admin visibility for debugging and monitoring.
 - Slack alerts for critical errors
 
 Plans:
-- [ ] 06-01-PLAN.md - Wire Dashboard Overview to Real Data
-- [ ] 06-02-PLAN.md - Real-time Call Events via WebSocket
-- [ ] 06-03-PLAN.md - Per-Client Filtering & Time Range Filters
+- [x] 06-01-PLAN.md - Wire Dashboard Overview to Real Data
+- [x] 06-02-PLAN.md - Real-time Call Events via WebSocket
+- [x] 06-03-PLAN.md - Per-Client Filtering & Time Range Filters
 
 ---
 

@@ -93,29 +93,29 @@ Create/update leads in Zoho CRM.
 
 ### REQ-007: Admin Dashboard
 **Priority:** High
-**Status:** Frontend exists, needs real-time data
+**Status:** Complete (Phase 6)
 
 Provide visibility for debugging and monitoring.
 
 **Acceptance Criteria:**
-- [ ] Real-time call status via Socket.IO
-- [ ] Message queue viewer
-- [ ] Error log browser
-- [ ] Per-client filtering
+- [x] Real-time call status via Socket.IO
+- [x] Message queue viewer
+- [x] Error log browser
+- [x] Per-client filtering
 
 ---
 
 ### REQ-008: Error Monitoring
 **Priority:** Medium
-**Status:** Partial implementation
+**Status:** Complete (Phase 3 + Phase 6)
 
 Track errors and alert via Slack.
 
 **Acceptance Criteria:**
-- [ ] All errors logged to database
-- [ ] Critical errors trigger immediate Slack alert
-- [ ] Error aggregation for batch notifications
-- [ ] Error resolution tracking
+- [x] All errors logged to database
+- [x] Critical errors trigger immediate Slack alert
+- [x] Error aggregation for batch notifications
+- [x] Error resolution tracking
 
 ---
 

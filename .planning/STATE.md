@@ -286,17 +286,23 @@ Progress: [################] 100% (Phases 1-6 complete)
 |------|------|----------|
 | ~~Database-backed OAuth tokens~~ | ~~`.planning/todos/pending/db-backed-oauth-tokens.md`~~ | ~~Medium~~ DONE |
 
+## Roadmap Evolution
+
+- Phase 6.1 inserted after Phase 6: Client Onboarding & OAuth Hardening (URGENT)
+  - Reason: OAuth refresh token recovery missing, no per-client onboarding flow, no admin setup tooling
+  - Must complete before Phase 7 (E2E Testing)
+
 ## Next Actions
 
-1. Test end-to-end booking flow with Retell voice agent
-2. Test nurture sequence scheduling with non-booking calls
-3. Continue to Phase 6 (Analytics & Reporting) or Phase 7 (Production Hardening)
+1. Plan Phase 6.1 - Client Onboarding & OAuth Hardening
+2. Execute Phase 6.1
+3. Then proceed to Phase 7 (E2E Testing)
 
 ## Session Continuity
 
 **Last session:** 2026-01-27
-**Stopped at:** Completed 06-03-PLAN.md (Client Filtering & Time Range)
-**Resume file:** None - Phase 6 complete, all phases done
+**Stopped at:** Phase 6 complete, Phase 6.1 inserted for OAuth hardening + client onboarding
+**Resume file:** None - proceed to /gsd:plan-phase 06.1
 
 ## Important Files
 

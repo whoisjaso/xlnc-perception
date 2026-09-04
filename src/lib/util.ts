@@ -77,3 +77,10 @@ export const validVin = (vin: string) => {
 };
 
 export const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+/** Absolute URL for an in-app path, correct under both browser and hash routing. */
+export const appUrl = (path: string) => {
+  if (typeof window === 'undefined') return path;
+  const hash = import.meta.env.VITE_ROUTER === 'hash';
+  return hash ? `${window.location.origin}${window.location.pathname}#${path}` : `${window.location.origin}${path}`;
+};

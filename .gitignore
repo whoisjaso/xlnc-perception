@@ -69,3 +69,4 @@ retell-mcp/
 public/media/vehicles/*.jpg
 public/media/atmosphere/*.jpg
 *.tsbuildinfo
+dist-artifact/

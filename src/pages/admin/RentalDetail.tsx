@@ -12,7 +12,7 @@ import { STATUS_LABEL, STATUS_TONE } from './Rentals';
 import type { Deduction, Installment, PaymentMethod, Rental } from '@/lib/types';
 import { fuelCharge, lateCharge, mileageOverage } from '@/lib/pricing';
 import { formatAddress } from '@/lib/address';
-import { fullName, money, nowIso, num, uid, cx } from '@/lib/util';
+import { appUrl, fullName, money, nowIso, num, uid, cx } from '@/lib/util';
 import { successChord, tick } from '@/lib/sound';
 
 type Tab = 'overview' | 'money' | 'contract' | 'checkin' | 'timeline';
@@ -37,7 +37,7 @@ export function RentalDetail() {
 
   const paid = r.installments.reduce((s, i) => s + i.paidAmount, 0);
   const total = r.installments.reduce((s, i) => s + i.amount, 0);
-  const link = r.signingToken ? `${window.location.origin}/sign/${r.signingToken}` : '';
+  const link = r.signingToken ? appUrl(`/sign/${r.signingToken}`) : '';
   const renterSigned = r.signatures.some((s) => s.role === 'renter');
   const dealerSigned = r.signatures.some((s) => s.role === 'dealer');
 

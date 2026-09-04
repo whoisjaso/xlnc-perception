@@ -14,7 +14,7 @@ import { buildRentalFromDraft, draftQuote } from '@/lib/buildRental';
 import { quote } from '@/lib/pricing';
 import { renderContractText } from '@/lib/contract';
 import { formatAddress } from '@/lib/address';
-import { fullName, money, nowIso, sha256, uid, num } from '@/lib/util';
+import { appUrl, fullName, money, nowIso, sha256, uid, num } from '@/lib/util';
 import { successChord, tick } from '@/lib/sound';
 
 /* 20. Review */
@@ -122,7 +122,7 @@ export function SignStep({ draft, set, next, back, progress, vehicle, settings }
   }, []);
 
   const ctx = useMemo(() => (rental && customer ? { rental, vehicle, customer, company: settings, template } : null), [rental, customer, vehicle, settings, template]);
-  const link = rental?.signingToken ? `${window.location.origin}/sign/${rental.signingToken}` : '';
+  const link = rental?.signingToken ? appUrl(`/sign/${rental.signingToken}`) : '';
 
   const sendRemote = () => {
     if (!rental) return;

@@ -1,0 +1,344 @@
+1
+00:00:03,133 --> 00:00:04,600
+This is Nova Wheels.
+
+2
+00:00:04,600 --> 00:00:06,067
+Not a rental counter...
+
+3
+00:00:06,067 --> 00:00:07,167
+not a spreadsheet.
+
+4
+00:00:07,167 --> 00:00:11,200
+A complete system, built to make your fleet look like this.
+
+5
+00:00:11,200 --> 00:00:12,667
+And run like this.
+
+6
+00:00:13,000 --> 00:00:15,200
+Your customers land here first.
+
+7
+00:00:15,200 --> 00:00:22,667
+Every car, every rate, every rule, presented the way a Porsche or Lamborghini showroom would present it.
+
+8
+00:00:22,667 --> 00:00:30,133
+It opens with a cinematic reveal, the menu moves like a luxury app, and every page glides.
+
+9
+00:00:30,133 --> 00:00:31,900
+Because the first impression...
+
+10
+00:00:31,900 --> 00:00:33,200
+sets the price.
+
+11
+00:00:40,333 --> 00:00:43,033
+Each vehicle gets its own page.
+
+12
+00:00:43,033 --> 00:00:43,500
+Specs.
+
+13
+00:00:43,500 --> 00:00:45,767
+Daily, weekly and monthly rates.
+
+14
+00:00:45,767 --> 00:00:49,833
+Included miles, the deposit, all of it up front.
+
+15
+00:00:49,833 --> 00:00:53,433
+So renters stop asking questions, and start booking.
+
+16
+00:00:54,033 --> 00:00:55,567
+Booking takes four screens.
+
+17
+00:00:55,567 --> 00:00:56,333
+Which car.
+
+18
+00:00:56,333 --> 00:00:58,633
+Which dates, with a live estimate.
+
+19
+00:00:58,633 --> 00:01:00,167
+How to reach them.
+
+20
+00:01:00,167 --> 00:01:00,567
+Done.
+
+21
+00:01:00,567 --> 00:01:05,567
+The request lands in your dashboard, with a name and a number attached.
+
+22
+00:01:08,533 --> 00:01:11,233
+Now, the part your customers never see.
+
+23
+00:01:11,233 --> 00:01:12,000
+Your operation.
+
+24
+00:01:12,000 --> 00:01:17,767
+Sign in, and the first time through, it sets itself up like a new phone.
+
+25
+00:01:17,767 --> 00:01:18,533
+Your company.
+
+26
+00:01:18,533 --> 00:01:19,300
+Your lot.
+
+27
+00:01:19,300 --> 00:01:20,467
+Your house rules.
+
+28
+00:01:20,467 --> 00:01:22,000
+How you take money.
+
+29
+00:01:22,000 --> 00:01:23,933
+Eight questions, and you're live.
+
+30
+00:01:24,533 --> 00:01:26,067
+Every morning starts here.
+
+31
+00:01:26,067 --> 00:01:26,833
+What's out.
+
+32
+00:01:26,833 --> 00:01:27,967
+What's due back.
+
+33
+00:01:27,967 --> 00:01:29,100
+Who owes you.
+
+34
+00:01:29,100 --> 00:01:31,000
+What still needs a signature.
+
+35
+00:01:31,000 --> 00:01:31,767
+One screen.
+
+36
+00:01:31,767 --> 00:01:32,533
+No digging.
+
+37
+00:01:33,200 --> 00:01:35,733
+And this is the heart of it.
+
+38
+00:01:35,733 --> 00:01:36,800
+Handle a rental.
+
+39
+00:01:36,800 --> 00:01:38,233
+One question per screen.
+
+40
+00:01:38,233 --> 00:01:38,967
+Which car?
+
+41
+00:01:38,967 --> 00:01:40,767
+Pick it from the fleet.
+
+42
+00:01:40,767 --> 00:01:45,100
+Or if it's brand new, type the VIN, and it decodes itself.
+
+43
+00:01:45,733 --> 00:01:51,167
+Odometer, fuel, every pre-existing mark, photographed and timestamped before the keys move.
+
+44
+00:01:51,167 --> 00:01:52,533
+Then the renter.
+
+45
+00:01:52,533 --> 00:01:53,000
+Name.
+
+46
+00:01:53,000 --> 00:01:53,467
+Contact.
+
+47
+00:01:53,467 --> 00:01:57,100
+License, with an age gate for every car.
+
+48
+00:01:57,100 --> 00:01:58,900
+An address that autocompletes.
+
+49
+00:01:58,900 --> 00:02:01,633
+Insurance you verify on the spot.
+
+50
+00:02:01,633 --> 00:02:05,700
+If they've rented before, one tap pulls their file.
+
+51
+00:02:05,700 --> 00:02:07,967
+And if they're flagged do-not-rent...
+
+52
+00:02:07,967 --> 00:02:10,233
+the system stops you cold.
+
+53
+00:02:10,833 --> 00:02:11,967
+Then, the money.
+
+54
+00:02:11,967 --> 00:02:15,800
+Term, rate, mileage, deposit, down payment, and how they pay.
+
+55
+00:02:15,800 --> 00:02:25,000
+Card on file is the default, because it's the only method that lets you recover tolls, tickets and damage after the car is back.
+
+56
+00:02:25,000 --> 00:02:30,733
+Pick Zelle or cash, and it warns you, and still requires a card for incidentals.
+
+57
+00:02:30,733 --> 00:02:33,400
+That is the difference between a business...
+
+58
+00:02:33,400 --> 00:02:34,533
+and a hobby.
+
+59
+00:02:35,200 --> 00:02:38,533
+Every answer flows straight into the contract.
+
+60
+00:02:38,533 --> 00:02:41,867
+Eighteen clauses written to protect the owner.
+
+61
+00:02:41,867 --> 00:02:42,833
+Late returns.
+
+62
+00:02:42,833 --> 00:02:43,800
+Prohibited use.
+
+63
+00:02:43,800 --> 00:02:44,767
+GPS consent.
+
+64
+00:02:44,767 --> 00:02:46,200
+Loss of use.
+
+65
+00:02:46,200 --> 00:02:47,167
+Chargeback language.
+
+66
+00:02:47,167 --> 00:02:54,800
+And under each one, a plain-English line, so the renter can never say they didn't understand.
+
+67
+00:02:55,367 --> 00:02:59,133
+Sign right there on the screen, or send a link.
+
+68
+00:02:59,133 --> 00:03:04,033
+On their phone, they initial each money clause, read the rules, and sign.
+
+69
+00:03:04,033 --> 00:03:07,800
+You get a timestamp, their device, and a countersign button.
+
+70
+00:03:08,467 --> 00:03:12,167
+When the car comes back, check-in does the math.
+
+71
+00:03:12,167 --> 00:03:13,000
+Miles over.
+
+72
+00:03:13,000 --> 00:03:13,833
+Fuel short.
+
+73
+00:03:13,833 --> 00:03:14,667
+Hours late.
+
+74
+00:03:14,667 --> 00:03:15,500
+Cleaning, smoking.
+
+75
+00:03:15,500 --> 00:03:18,367
+All computed and itemized against the deposit.
+
+76
+00:03:18,367 --> 00:03:24,533
+GPS and starter interrupt live right on the rental, with a log of every action.
+
+77
+00:03:24,533 --> 00:03:25,367
+And payments...
+
+78
+00:03:25,367 --> 00:03:29,467
+every installment, every deduction, across every rental, in one ledger.
+
+79
+00:03:29,467 --> 00:03:36,867
+So when it's time to talk to a bank, or apply for funding, your numbers are already organized.
+
+80
+00:03:37,500 --> 00:03:40,500
+So what does this actually do for the business?
+
+81
+00:03:40,500 --> 00:03:44,167
+It lets customers book from the website, instead of your DMs.
+
+82
+00:03:44,167 --> 00:03:48,500
+It makes you look like a brand people expect to pay more for.
+
+83
+00:03:48,500 --> 00:03:51,833
+It puts every dollar in writing before the keys move.
+
+84
+00:03:51,833 --> 00:03:56,167
+And it turns a stack of paperwork into six minutes on a screen.
+
+85
+00:03:56,167 --> 00:03:56,833
+Nova Wheels.
+
+86
+00:03:56,833 --> 00:03:58,500
+Let's put it to work.
+

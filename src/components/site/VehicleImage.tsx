@@ -35,9 +35,9 @@ export function VehicleImage({ vehicle, className, sizes, priority, plateClass =
 
   if (!src || ok === false || ok === null) {
     const label = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-    if (quiet || ok === null) return <div className={cx('relative overflow-hidden', plateClass, className)} role="img" aria-label={label} />;
+    if (quiet || ok === null) return <div className={cx('overflow-hidden', plateClass, className)} role="img" aria-label={label} />;
     return (
-      <div className={cx('relative overflow-hidden flex items-end @container', plateClass, className)} role="img" aria-label={label}>
+      <div className={cx('overflow-hidden flex items-end @container', plateClass, className)} role="img" aria-label={label}>
         <div className="p-[6%] w-full">
           <p className="font-display text-[clamp(18px,11cqw,84px)] leading-[0.95] tracking-[-0.01em]" style={{ color: plateClass === 'plate' ? 'rgb(244 242 238 / 0.9)' : 'rgb(20 20 22 / 0.85)' }}>
             {vehicle.make}

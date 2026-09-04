@@ -89,6 +89,7 @@
   --accent: #6a84f0; --accent-fg: #0e1220; color-scheme: dark;
 }
 
+@layer base {
 /* ---------- base ---------- */
 html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
 html.lenis, html.lenis body { height: auto; }
@@ -135,6 +136,9 @@ a.underline-offset { text-decoration: underline; text-underline-offset: 0.2em; t
 .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
 .font-mono { font-family: var(--font-mono); }
 
+}
+
+@layer components {
 /* micro label: letterspaced grotesk. Not an eyebrow; used for controls, nav, meta. */
 .label-caps {
   font-family: var(--font-sans);
@@ -259,6 +263,8 @@ select.field-box { appearance: none; padding-right: 36px; }
 
 /* view masks for cinematic reveals */
 .mask-up { clip-path: inset(0 0 0 0); }
+
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }

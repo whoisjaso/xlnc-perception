@@ -60,7 +60,7 @@ export function Hub() {
           </Link>
         </motion.div>
 
-        <div className="md:col-span-5 rounded-[var(--radius-lg)] p-6" style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-1)' }}>
+        <div className="md:col-span-5 rounded-[var(--radius-lg)] p-6 min-w-0 overflow-hidden" style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-1)' }}>
           <p className="text-[15px] font-medium">Needs attention</p>
           <ul className="mt-4 flex flex-col gap-3 text-[14px]">
             {overdue.map((r) => <Row key={r.id} to={`/admin/rentals/${r.id}`} tone="danger" label={`${vehicleName(vehicles, r.vehicleId)} is ${differenceInHours(now, new Date(r.terms.endAt))}h past return`} meta={customerName(customers, r.customerId)} />)}
@@ -71,12 +71,12 @@ export function Hub() {
           </ul>
         </div>
 
-        <div className="md:col-span-5 rounded-[var(--radius-lg)] p-6" style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-1)' }}>
+        <div className="md:col-span-5 rounded-[var(--radius-lg)] p-6 min-w-0 overflow-hidden" style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-1)' }}>
           <p className="text-[15px] font-medium">Out right now</p>
           <ul className="mt-4 flex flex-col gap-3 text-[14px]">
             {active.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-4">
-                <Link to={`/admin/rentals/${r.id}`} className="hover:underline underline-offset-4">{vehicleName(vehicles, r.vehicleId)}</Link>
+              <li key={r.id} className="flex items-center justify-between gap-4 min-w-0">
+                <Link to={`/admin/rentals/${r.id}`} className="truncate min-w-0 hover:underline underline-offset-4">{vehicleName(vehicles, r.vehicleId)}</Link>
                 <span className="tabular whitespace-nowrap" style={{ color: 'var(--fg-3)' }}>back {format(new Date(r.terms.endAt), 'MMM d, h a')}</span>
               </li>
             ))}
@@ -103,12 +103,12 @@ export function Hub() {
 
 function Row({ to, tone, label, meta }: { to: string; tone: 'danger' | 'warn' | 'accent'; label: string; meta: string }) {
   return (
-    <li className="flex items-center justify-between gap-4">
-      <Link to={to} className="flex items-center gap-3 min-w-0 hover:underline underline-offset-4">
+    <li className="flex items-center justify-between gap-4 min-w-0">
+      <Link to={to} className="flex items-center gap-3 min-w-0 shrink hover:underline underline-offset-4">
         <Pill tone={tone}>{tone === 'danger' ? 'Overdue' : tone === 'warn' ? 'Today' : 'Pending'}</Pill>
         <span className="truncate">{label}</span>
       </Link>
-      <span className="truncate text-right" style={{ color: 'var(--fg-3)' }}>{meta}</span>
+      <span className="truncate text-right min-w-0 shrink hidden sm:block" style={{ color: 'var(--fg-3)' }}>{meta}</span>
     </li>
   );
 }

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { CompanySettings, ContractTemplate, Customer, Rental, RentalEvent, Reservation, UserProfile, Vehicle } from '@/lib/types';
 import { DEFAULT_SETTINGS, SEED_CUSTOMERS, SEED_RENTALS, SEED_VEHICLES } from '@/data/seed';
 import { DEFAULT_TEMPLATE } from '@/data/clauses';
-import { mirror, mirrorDelete, pull, supabase, supabaseEnabled } from '@/lib/supabase';
+import { insertRow, mirror, mirrorDelete, pull, supabase, supabaseEnabled } from '@/lib/supabase';
 import { nowIso, uid } from '@/lib/util';
 import { setSoundEnabled } from '@/lib/sound';
 
@@ -234,7 +234,7 @@ export const useReservations = create<ReservationState>()(
       add: (r) => {
         const res: Reservation = { ...r, id: uid('res'), createdAt: nowIso(), status: 'new' };
         set({ reservations: [res, ...get().reservations] });
-        void mirror('reservations', toRow(res));
+        void insertRow('reservations', toRow(res));
         return res;
       },
       setStatus: (id, status) => set({ reservations: get().reservations.map((r) => (r.id === id ? { ...r, status } : r)) }),
@@ -248,17 +248,33 @@ function toRow<T extends { id: string; createdAt?: string; updatedAt?: string }>
   return { id: obj.id, data: obj, created_at: obj.createdAt ?? nowIso(), updated_at: obj.updatedAt ?? nowIso() };
 }
 
-/** On boot with Supabase configured, pull remote rows and replace local state. */
+/**
+ * On boot with Supabase configured, the database is the source of truth.
+ * Vehicles and the contract template are seeded into an empty project once so every
+ * device sees the same fleet; customers, rentals, and requests start empty.
+ */
 export async function hydrateFromSupabase() {
-  if (!supabaseEnabled) return;
-  const [v, c, r, t] = await Promise.all([
+  if (!supabaseEnabled || !supabase) return;
+  const { data: sess } = await supabase.auth.getSession();
+  if (!sess.session && useAuth.getState().user) useAuth.setState({ user: null });
+  const [v, c, r, t, q, s] = await Promise.all([
     pull<{ data: Vehicle }>('vehicles'),
     pull<{ data: Customer }>('customers'),
     pull<{ data: Rental }>('rentals'),
     pull<{ data: ContractTemplate }>('contract_templates'),
+    pull<{ data: Reservation }>('reservations'),
+    pull<{ data: CompanySettings }>('company_settings'),
   ]);
-  if (v && v.length) useFleet.setState({ vehicles: v.map((x) => x.data) });
-  if (c && c.length) useCustomers.setState({ customers: c.map((x) => x.data) });
-  if (r && r.length) useRentals.setState({ rentals: r.map((x) => x.data) });
-  if (t && t.length) useTemplates.setState({ templates: t.map((x) => x.data) });
+  if (v) {
+    if (v.length) useFleet.setState({ vehicles: v.map((x) => x.data) });
+    else if (sess.session) await Promise.all(SEED_VEHICLES.map((veh) => mirror('vehicles', toRow(veh))));
+  }
+  if (t) {
+    if (t.length) useTemplates.setState({ templates: t.map((x) => x.data) });
+    else if (sess.session) await mirror('contract_templates', toRow(DEFAULT_TEMPLATE));
+  }
+  if (c) useCustomers.setState({ customers: c.map((x) => x.data) });
+  if (r) useRentals.setState({ rentals: r.map((x) => x.data), counter: r.reduce((m, x) => Math.max(m, Number(x.data.number.split('-').pop()) || 0), 0) });
+  if (q) useReservations.setState({ reservations: q.map((x) => x.data) });
+  if (s && s.length) { useSettings.setState({ settings: { ...DEFAULT_SETTINGS, ...s[0].data } }); setSoundEnabled(s[0].data.sounds ?? true); }
 }

@@ -36,3 +36,13 @@ export async function pull<T>(table: string): Promise<T[] | null> {
   }
   return (data ?? []) as T[];
 }
+
+/** Insert-only write (used where anonymous visitors may only insert, e.g. reservations). */
+export async function insertRow(table: string, row: Record<string, unknown>) {
+  if (!supabase) return;
+  try {
+    await supabase.from(table).insert(row);
+  } catch (e) {
+    console.warn(`[supabase] insert ${table} failed`, e);
+  }
+}

@@ -46,7 +46,7 @@ export function VehiclePage() {
               <Lines as="h1" lines={[v.make, v.model + (v.trim ? ` ${v.trim}` : '')]} className="font-display text-[clamp(44px,8vw,120px)] leading-[0.95] tracking-[-0.01em]" />
             </div>
             <Reveal delay={0.4} className="md:text-right">
-              <p className="font-display text-[40px] leading-none tabular">{money(v.rates.daily)}<span className="text-[18px] ml-2" style={{ color: 'var(--fg-2)' }}>per day</span></p>
+              <p className="font-display text-[40px] leading-none tabular" style={{ color: 'var(--accent-ink)' }}>{money(v.rates.daily)}<span className="text-[18px] ml-2" style={{ color: 'var(--fg-2)' }}>per day</span></p>
               <Link to={`/reserve?vehicle=${v.slug}`} className="btn btn-primary btn-lg mt-6">Reserve this car</Link>
             </Reveal>
           </div>

@@ -11,7 +11,7 @@ export function Atmosphere({ name, className, alt = '' }: { name: string; classN
         role={alt ? 'img' : undefined}
         aria-label={alt || undefined}
         className={cx('relative overflow-hidden', className)}
-        style={{ background: 'radial-gradient(90% 70% at 30% 20%, rgb(84 112 230 / 0.16), transparent 60%), radial-gradient(70% 60% at 80% 90%, rgb(244 242 238 / 0.08), transparent 60%), linear-gradient(180deg, #17181c, #0f1012)' }}
+        style={{ background: 'radial-gradient(90% 70% at 30% 20%, rgb(214 178 95 / 0.14), transparent 60%), radial-gradient(70% 60% at 80% 90%, rgb(244 242 238 / 0.08), transparent 60%), linear-gradient(180deg, #17181c, #0f1012)' }}
       />
     );
   }

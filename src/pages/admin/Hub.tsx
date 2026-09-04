@@ -51,12 +51,12 @@ export function Hub() {
       <div className="mt-10 grid md:grid-cols-12 gap-4">
         <motion.div className="md:col-span-7 md:row-span-2" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <Link to="/admin/rental/new/vehicle" className="group flex flex-col justify-between h-full min-h-[280px] rounded-[var(--radius-lg)] p-8 md:p-10 transition-transform duration-500 hover:-translate-y-0.5" style={{ background: '#0f1012', color: '#f4f2ee', boxShadow: 'var(--shadow-2)' }}>
-            <p className="label-caps" style={{ color: 'rgb(244 242 238 / 0.55)' }}>Start here</p>
+            <p className="label-caps" style={{ color: '#d6b25f' }}>Start here</p>
             <div>
               <p className="font-display text-[clamp(36px,4.5vw,60px)] leading-[1.02]">Handle a rental</p>
               <p className="mt-3 text-[16px] max-w-[40ch]" style={{ color: 'rgb(244 242 238 / 0.7)' }}>Car, renter, terms, money, contract, signature. One screen at a time, about six minutes.</p>
             </div>
-            <span className="inline-flex items-center gap-2 label-caps transition-all group-hover:gap-3">Begin <ArrowRight aria-hidden className="size-4" /></span>
+            <span className="inline-flex items-center gap-2 label-caps transition-all group-hover:gap-3" style={{ color: '#d6b25f' }}>Begin <ArrowRight aria-hidden className="size-4" /></span>
           </Link>
         </motion.div>
 

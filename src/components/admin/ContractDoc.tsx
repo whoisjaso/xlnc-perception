@@ -12,7 +12,7 @@ const STYLE = `
 .contract .clause{margin:0 0 22px;break-inside:avoid}
 .contract h3{font-size:15px;font-weight:600;margin:0 0 6px}
 .contract p{margin:0 0 8px;max-width:78ch}
-.contract .plain{padding:10px 14px;border-left:1px solid var(--accent);color:var(--fg-2);font-size:13.5px;background:color-mix(in oklab,var(--accent) 6%,transparent);border-radius:0 8px 8px 0}
+.contract .plain{padding:10px 14px;border-left:1px solid var(--accent-ink);color:var(--fg-2);font-size:13.5px;background:color-mix(in oklab,var(--accent) 6%,transparent);border-radius:0 8px 8px 0}
 .contract .sig{margin-top:18px}
 .contract .sig-line{height:80px;border-bottom:1px solid var(--line-strong);display:flex;align-items:flex-end}
 .contract .sig-line img{height:76px;width:auto}

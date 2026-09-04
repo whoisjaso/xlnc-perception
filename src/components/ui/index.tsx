@@ -131,7 +131,7 @@ export function Pill({ children, tone = 'neutral' }: { children: ReactNode; tone
     ok: { bg: 'color-mix(in oklab, var(--color-ok) 14%, transparent)', fg: 'var(--color-ok)' },
     warn: { bg: 'color-mix(in oklab, var(--color-warn) 16%, transparent)', fg: 'var(--color-warn)' },
     danger: { bg: 'color-mix(in oklab, var(--color-danger) 14%, transparent)', fg: 'var(--color-danger)' },
-    accent: { bg: 'color-mix(in oklab, var(--accent) 14%, transparent)', fg: 'var(--accent)' },
+    accent: { bg: 'color-mix(in oklab, var(--accent) 18%, transparent)', fg: 'var(--accent-ink)' },
   };
   const c = colors[tone];
   return (

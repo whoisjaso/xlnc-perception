@@ -42,7 +42,7 @@ export function Login() {
         >
           Every rental, handled in one sitting.
         </motion.p>
-        <p className="text-[13px]" style={{ color: 'rgb(244 242 238 / 0.5)' }}>Nova Wheels operations</p>
+        <p className="text-[13px] pt-4" style={{ color: 'rgb(244 242 238 / 0.5)', borderTop: '1px solid #d6b25f' }}>Nova Wheels operations</p>
       </div>
       <div className="flex items-center justify-center p-6 md:p-12">
         <motion.form

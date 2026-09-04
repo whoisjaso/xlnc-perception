@@ -77,7 +77,7 @@ export function Home() {
                     <p className="font-display text-[26px] md:text-[32px] leading-tight">{v.make} <span className="italic">{v.model}</span></p>
                     <p className="text-[15px] mt-1" style={{ color: 'var(--fg-3)' }}>{v.tagline}</p>
                   </div>
-                  <p className="tabular text-[15px] whitespace-nowrap" style={{ color: 'var(--fg-2)' }}>{money(v.rates.daily)} / day</p>
+                  <p className="tabular text-[15px] whitespace-nowrap" style={{ color: 'var(--accent-ink)' }}>{money(v.rates.daily)} / day</p>
                 </div>
               </Link>
             </Reveal>

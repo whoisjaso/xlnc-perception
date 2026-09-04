@@ -80,7 +80,7 @@ export function AddressInput({ value, onChange, autoFocus, line = true }: { valu
             if (e.key === 'Escape') { setOpen(false); }
           }}
         />
-        <MapPin aria-hidden className={cx('absolute right-2 top-1/2 -translate-y-1/2 size-5 transition-opacity', loading && 'animate-pulse')} style={{ color: value ? 'var(--accent)' : 'var(--fg-3)' }} />
+        <MapPin aria-hidden className={cx('absolute right-2 top-1/2 -translate-y-1/2 size-5 transition-opacity', loading && 'animate-pulse')} style={{ color: value ? 'var(--accent-ink)' : 'var(--fg-3)' }} />
       </div>
       {open && (
         <ul id={listId} role="listbox" className="absolute z-20 mt-2 w-full rounded-[var(--radius)] overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--line)', boxShadow: 'var(--shadow-2)' }}>

@@ -4,7 +4,7 @@ export function Wordmark({ className, size = 'md' }: { className?: string; size?
   const sizes = { sm: 'text-[15px] tracking-[0.32em]', md: 'text-[17px] tracking-[0.34em]', lg: 'text-[26px] tracking-[0.36em]', xl: 'text-[clamp(40px,8vw,120px)] tracking-[0.3em]' };
   return (
     <span className={cx('font-display font-medium uppercase leading-none select-none', sizes[size], className)} aria-label="Nova Wheels">
-      Nova<span className="opacity-70 mx-[0.25em]" aria-hidden>·</span>Wheels
+      Nova<span className="mx-[0.25em]" style={{ color: 'var(--accent-ink)' }} aria-hidden>·</span>Wheels
     </span>
   );
 }

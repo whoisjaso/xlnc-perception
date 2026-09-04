@@ -53,7 +53,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
           </div>
           <motion.div
             className="mt-10 h-px w-[min(60vw,320px)] origin-left"
-            style={{ background: 'rgb(244 242 238 / 0.35)' }}
+            style={{ background: '#d6b25f' }}
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 1.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}

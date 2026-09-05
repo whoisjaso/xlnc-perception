@@ -64,3 +64,9 @@ coverage/
 
 # MCP servers (separate repos)
 retell-mcp/
+
+# Nova Wheels media (drop real photography here; keep the folder)
+public/media/vehicles/*.jpg
+public/media/atmosphere/*.jpg
+*.tsbuildinfo
+dist-artifact/
